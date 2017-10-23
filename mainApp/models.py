@@ -1,6 +1,8 @@
 from django.db import models
 
 # Create your models here.
+class SubjectCode(models.Model):
+	subject_code=models.CharField(max_length=7)
 
 class Wallet(models.Model):
 	#its own can be accessed by wallet.student / wallet.tutor if exist
@@ -24,7 +26,7 @@ class Tutor(models.Model):
 	#below different from student
 	tutor_type=models.CharField(max_length=7)#contract/private
 	university=models.CharField(max_length=60)
-	teach_course_code=models.CharField(max_length=10)
+	teach_course_code=models.ForeignKey(SubjectCode)
 	subject_tag=models.CharField(max_length=60)
 	hourly_rate=models.IntegerField(default=100)
 	introduction=models.CharField(max_length=200)
@@ -38,18 +40,23 @@ class Session(models.Model):
 	state=models.CharField(max_length=10,default='normal')#cancelled/normal/ended/in-progress
 	session_student=models.ForeignKey(Student)
 	session_tutor=models.ForeignKey(Tutor)
-
-class Schedule(models.Model):
-	owned_tutor=models.OneToOneField(Tutor)
-	start_date=models.DateField()
-	available_timeslot=models.BinaryField()
+	
 #record twice for students wallet and tutors wallet
 class Transaction(models.Model):
 	in_wallet=models.ForeignKey(Wallet,on_delete=models.CASCADE)
 	amount=models.IntegerField(default=0)
 	state=models.CharField(max_length=10,default='pending')#pending/completed/cancelled
+	involved_session=models.OneToOneField(Session)
 	payment_student=models.ForeignKey(Student)
 	payment_tutor=models.ForeignKey(Tutor)
+
+
+
+class Schedule(models.Model):
+	owned_tutor=models.OneToOneField(Tutor)
+	start_date=models.DateField()
+	available_timeslot=models.BinaryField()
+
 
 class Review(models.Model):
 	stars=models.IntegerField(default=3)
@@ -62,3 +69,4 @@ class Review(models.Model):
 class Coupon(models.Model):
 	coupon_code=models.CharField(max_length=30)
 	expiry_date=models.DateTimeField('expiry date')
+
