@@ -15,8 +15,16 @@ Including another URLconf
 """
 from django.conf.urls import include,url
 from django.contrib import admin
+from django.shortcuts import redirect
+
+#temp home page
+def redirectToHome(request):
+	return redirect('./main/findTutors')
 
 urlpatterns = [
+	url(r'^/?$',redirectToHome),
 	url(r'^main/',include('mainApp.urls')),
     url(r'^admin/', admin.site.urls),
 ]
+
+
