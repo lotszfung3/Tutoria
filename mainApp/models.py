@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 class SubjectCode(models.Model):
-	subject_code=models.CharField(max_length=7)
+	subject_code=models.CharField(max_length=8)
 
 class Wallet(models.Model):
 	#its own can be accessed by wallet.student / wallet.tutor if exist
@@ -26,7 +26,7 @@ class Tutor(models.Model):
 	#below different from student
 	tutor_type=models.CharField(max_length=7)#contract/private
 	university=models.CharField(max_length=60)
-	teach_course_code=models.ForeignKey(SubjectCode)
+	teach_course_code=models.ManyToManyField(SubjectCode)
 	subject_tag=models.CharField(max_length=60)
 	hourly_rate=models.IntegerField(default=100)
 	introduction=models.CharField(max_length=200)
