@@ -1,7 +1,12 @@
 from django.db import models
 
 # Create your models here.
-#partiat models only (23/10)
+
+class Wallet(models.Model):
+	#its own can be accessed by wallet.student / wallet.tutor if exist
+	amount=models.IntegerField(default=0)
+	#its transactions list can be accessed wallet.transaction_set
+
 class Student(models.Model):
 	name=models.CharField(max_length=60)
 	email=models.CharField(max_length=60)
@@ -9,11 +14,6 @@ class Student(models.Model):
 	photo_url=models.CharField(max_length=30)
 	owned_wallet=models.OneToOneField(Wallet)
 
-
-class Wallet(models.Model):
-	#its own can be accessed by wallet.student / wallet.tutor if exist
-	amount=models.IntegerField(default=0)
-	#its transactions list can be accessed wallet.transaction_set
 
 class Tutor(models.Model):
 	name=models.CharField(max_length=60)
@@ -28,18 +28,36 @@ class Tutor(models.Model):
 	subject_tag=models.CharField(max_length=60)
 	hourly_rate=models.IntegerField(default=100)
 	introduction=models.CharField(max_length=200)
-	activated=models.CharField(max_length=1)#Y/N
+	activated=models.BooleanField()#profiles show to public or not
 	avg_review=models.IntegerField(default=-1)
+	#schduel: tutor.schedule
 
 class Session(models.Model):
-	
+	coupon_used=models.BooleanField()
+	session_datetime=models.DateTimeField()
+	state=models.CharField(max_length=10,default='normal')#cancelled/normal/ended/in-progress
+	session_student=models.ForeignKey(Student)
+	session_tutor=models.ForeignKey(Tutor)
 
 class Schedule(models.Model):
-
+	owned_tutor=models.OneToOneField(Tutor)
+	start_date=models.DateField()
+	available_timeslot=models.BinaryField()
 #record twice for students wallet and tutors wallet
 class Transaction(models.Model):
 	in_wallet=models.ForeignKey(Wallet,on_delete=models.CASCADE)
+	amount=models.IntegerField(default=0)
+	state=models.CharField(max_length=10,default='pending')#pending/completed/cancelled
+	payment_student=models.ForeignKey(Student)
+	payment_tutor=models.ForeignKey(Tutor)
+
 class Review(models.Model):
+	stars=models.IntegerField(default=3)
+	comment=models.CharField(max_length=200)
+	written_student=models.ForeignKey(Student)
+	for_tutor=models.ForeignKey(Tutor)
+	written_date=models.DateTimeField(auto_now_add=True)
+	course_code=models.CharField(max_length=10)
 
 class Coupon(models.Model):
 	coupon_code=models.CharField(max_length=30)

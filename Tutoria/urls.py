@@ -22,7 +22,7 @@ def redirectToHome(request):
 	return redirect('./main/findTutors')
 
 urlpatterns = [
-	url(r'^/?$',redirectToHome),
+	url(r'^$',redirectToHome),
 	url(r'^main/',include('mainApp.urls')),
     url(r'^admin/', admin.site.urls),
 ]
