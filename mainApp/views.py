@@ -7,7 +7,7 @@ def test(request):
 
 #form for finding tutors
 def findTutors(request):
-	return HttpResponse("findTutors")
+	return render(request,'mainApp/findTutors.html')
 
 #list of tutors with requirement in side request.GET
 def tutorsList(request):
