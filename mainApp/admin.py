@@ -1,10 +1,9 @@
 from django.contrib import admin
 
-from .models import Wallet,Student,Tutor,Schedule,Session,Coupon,Transaction,Review,SubjectCode
+from .models import Student,Tutor,Schedule,Session,Coupon,Transaction,Review,SubjectCode
 
 # Register your models here.
 
-admin.site.register(Wallet)
 admin.site.register(Student)
 admin.site.register(Tutor)
 admin.site.register(Schedule)

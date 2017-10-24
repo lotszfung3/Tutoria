@@ -4,17 +4,13 @@ from django.db import models
 class SubjectCode(models.Model):
 	subject_code=models.CharField(max_length=8)
 
-class Wallet(models.Model):
-	#its own can be accessed by wallet.student / wallet.tutor if exist
-	amount=models.IntegerField(default=0)
-	#its transactions list can be accessed wallet.transaction_set
 
 class Student(models.Model):
 	name=models.CharField(max_length=60)
 	email=models.CharField(max_length=60)
 	phoneNumber=models.CharField(max_length=10)
 	photo_url=models.CharField(max_length=30)
-	owned_wallet=models.OneToOneField(Wallet)
+	amount=models.IntegerField(default=0)
 
 
 class Tutor(models.Model):
@@ -22,7 +18,7 @@ class Tutor(models.Model):
 	email=models.CharField(max_length=60)
 	phoneNumber=models.CharField(max_length=10)
 	photo_url=models.CharField(max_length=30)
-	owned_wallet=models.OneToOneField(Wallet)
+	amount=models.IntegerField(default=0)
 	#below different from student
 	tutor_type=models.CharField(max_length=7)#contract/private
 	university=models.CharField(max_length=60)
@@ -43,7 +39,6 @@ class Session(models.Model):
 	
 #record twice for students wallet and tutors wallet
 class Transaction(models.Model):
-	in_wallet=models.ForeignKey(Wallet,on_delete=models.CASCADE)
 	amount=models.IntegerField(default=0)
 	state=models.CharField(max_length=10,default='pending')#pending/completed/cancelled
 	involved_session=models.OneToOneField(Session)
@@ -55,7 +50,7 @@ class Transaction(models.Model):
 class Schedule(models.Model):
 	owned_tutor=models.OneToOneField(Tutor)
 	start_date=models.DateField()
-	available_timeslot=models.BinaryField()
+	available_timeslot=models.CharField(max_length=280)
 
 
 class Review(models.Model):
