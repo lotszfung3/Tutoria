@@ -3,7 +3,8 @@ from django.db import models
 # Create your models here.
 class SubjectCode(models.Model):
 	subject_code=models.CharField(max_length=8)
-
+	def __str__ (self):
+		return self.subject_code
 
 class Student(models.Model):
 	name=models.CharField(max_length=60)
@@ -11,6 +12,8 @@ class Student(models.Model):
 	phoneNumber=models.CharField(max_length=10)
 	photo_url=models.CharField(max_length=30)
 	amount=models.IntegerField(default=0)
+	def __str__ (self):
+		return self.name
 
 
 class Tutor(models.Model):
@@ -20,7 +23,7 @@ class Tutor(models.Model):
 	photo_url=models.CharField(max_length=30)
 	amount=models.IntegerField(default=0)
 	#below different from student
-	tutor_type=models.CharField(max_length=7)#contract/private
+	tutor_type=models.CharField(max_length=8)#Contract/Private
 	university=models.CharField(max_length=60)
 	teach_course_code=models.ManyToManyField(SubjectCode)
 	subject_tag=models.CharField(max_length=60)
@@ -29,6 +32,8 @@ class Tutor(models.Model):
 	activated=models.BooleanField()#profiles show to public or not
 	avg_review=models.IntegerField(default=-1)
 	#schduel: tutor.schedule
+	def __str__ (self):
+		return self.name
 
 class Session(models.Model):
 	coupon_used=models.BooleanField()
@@ -36,6 +41,8 @@ class Session(models.Model):
 	state=models.CharField(max_length=10,default='normal')#cancelled/normal/ended/in-progress
 	session_student=models.ForeignKey(Student)
 	session_tutor=models.ForeignKey(Tutor)
+	def __str__ (self):
+		return self.id
 	
 #record twice for students wallet and tutors wallet
 class Transaction(models.Model):
@@ -44,6 +51,8 @@ class Transaction(models.Model):
 	involved_session=models.OneToOneField(Session)
 	payment_student=models.ForeignKey(Student)
 	payment_tutor=models.ForeignKey(Tutor)
+	def __str__ (self):
+		return self.id
 
 
 
@@ -51,6 +60,8 @@ class Schedule(models.Model):
 	owned_tutor=models.OneToOneField(Tutor)
 	start_date=models.DateField()
 	available_timeslot=models.CharField(max_length=280)
+	def __str__ (self):
+		return self.owned_tutor.name
 
 
 class Review(models.Model):
@@ -60,8 +71,12 @@ class Review(models.Model):
 	for_tutor=models.ForeignKey(Tutor)
 	written_date=models.DateTimeField(auto_now_add=True)
 	course_code=models.CharField(max_length=10)
+	def __str__ (self):
+		return self.id
 
 class Coupon(models.Model):
 	coupon_code=models.CharField(max_length=30)
 	expiry_date=models.DateTimeField('expiry date')
+	def __str__ (self):
+		return self.coupon_code
 

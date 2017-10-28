@@ -5,23 +5,45 @@
 {% block content %}
 <form class="ui form" action="tutorsList" method="get">
   <div class="field">
-    <label>First Name</label>
-    <input type="text" name="first-name" placeholder="First Name">
+    <label>University</label>
+    <input type="text" name="university" placeholder="University Name">
   </div>
   <div class="field">
-    <label>Last Name</label>
-    <input type="text" name="last-name" placeholder="Last Name">
+    <label>University course</label>
+    <input type="text" name="course" placeholder="Course Code">
+  </div>
+  <div class="field">
+    <label>Subject tag</label>
+    <input type="text" name="tag" placeholder="Subject Tags">
+  </div>
+  <div class="field">
+    <label>Price higher than</label>
+    <input type="number" name="lprice" placeholder="Lowest Price">
+  </div>
+  <div class="field">
+    <label>Price lower than</label>
+    <input type="number" name="hprice" placeholder="tag">
+  </div>
+  <div class="field">
+    <label>Contract Type</label>
+    <select name="type">
+      <option value="c">Contract</option>
+      <option value="p">Private</option>
+      <option value="b">Both</option>
+    </select>
   </div>
   <div class="field">
     <div class="ui checkbox">
-      <input type="checkbox" tabindex="0" class="hidden">
+      <input type="checkbox" name="crit" tabindex="0">
+      <label>Only show tutors with available timeslots</label>
+    </div>
+  </div>
+  <div class="field">
+    <div class="ui checkbox">
+      <input type="checkbox" tabindex="0">
       <label>I agree to the Terms and Conditions</label>
     </div>
   </div>
-    <div class="ui checkbox">
-  <input type="checkbox">
-  <label>Label</label>
-</div>
   <button class="ui button" type="submit">Submit</button>
 </form>
 {% endblock %}
