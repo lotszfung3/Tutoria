@@ -1,27 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="style.css" />
             {% load static %}
          <link rel="stylesheet" type="text/css" href="{% static "mainApp/semantic.min.css" %}">
     <title>{% block title %}Tutoria{% endblock %}</title>
 </head>
 
 <body>
+
     <div class="ui menu">
+	{% if False %}
+	
     <div class="ui simple dropdown item">
     Dropdown
     <i class="dropdown icon"></i>
     <div class="menu">
-      <div class="item">Choice 1</div>
-      <div class="item">Choice 2</div>
-      <div class="item">Choice 3</div>
+    <div class="item">View Profile</div>
+    <div class="item">Edit Profile</div>
+    <div class="item">Manage Wallet</div>
+	<div class="item">View Transaction History</div>
+	<div class="item">View Booked Session</div>
+	<div class="item">Edit Unavailable Session</div>
     </div>
   </div>
   <a class="item active">
-    About Us
+    FindTutors
   </a>
-
+  {% else %}
+  <div class="ui container">
+   <div class="header  item">
+    Please Log in{{Request.user}}
+  </div>
+    </div class="ui container">
+  {% endif %}
 </div>
     <div class="ui paded container" id="content">
         {% block content %}{% endblock %}

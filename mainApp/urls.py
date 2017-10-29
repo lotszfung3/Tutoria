@@ -9,5 +9,7 @@ urlpatterns = [
     url(r'^detailedProfile',views.detailedProfile,name='detailedProfile'),
     url(r'^confirmPayment$',views.confirmPayment,name='confirmPayment'),
     url(r'^viewUpcomingSessions$',views.viewUpcomingSessions,name='viewUpcomingSessions'),
-    url(r'^cancelSession$',views.cancelSession,name='cancelSession')
+    url(r'^cancelSession$',views.cancelSession,name='cancelSession'),
+    url(r'^register$',views.register,name='register'),
+	   url(r'^login$',views.login,name='login')
 ]

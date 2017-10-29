@@ -6,14 +6,22 @@ from datetime import date
 def test(request):
     return render(request, 'mainApp/test.html')
 
-
+def login(request):
+	if request.method == 'GET':
+		return render(request, 'mainApp/login.html')
+	elif request.method == 'POST':
+		return HttpResponse("login_post")
+def register(request):
+	if request.method == 'GET':
+		return HttpResponse("register_get")
+	elif request.method == 'POST':
+		return HttpResponse("register_post")
 #form for finding tutors
 def findTutors(request):
 	return render(request,'mainApp/findTutors.html')
 
 #list of tutors with requirement in side request.GET
 def tutorsList(request):
-
 	tutor_query = []
 	uni = request.GET['university']
 	if(uni!=''):

@@ -1,0 +1,21 @@
+{% extends "mainApp/base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="ui container segment">
+<form class="ui form" action="./login" method="POST">
+  <div class="field">
+    <label>Username</label>
+    <input type="text" name="username" placeholder="Username">
+  </div>
+  <div class="field">
+    <label>Password</label>
+    <input type="password" name="password" placeholder="Password">
+  </div>
+
+  <button class="ui button" type="submit">Submit</button>
+</form>
+</div class="ui container">
+
+{% endblock %}
