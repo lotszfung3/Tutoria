@@ -62,6 +62,10 @@ def tutorsList(request):
 				if(course_code.subject_code==course):
 					tutor_list.append(tutor)
 					break;
+	else:
+		for tutor in tutor_all:
+			tutor_list.append(tutor)
+
 	if(len(tutor_list)==0):
 		for tutor in Tutor.objects.filter(activated=True):
 			tutor_list.append(tutor)
