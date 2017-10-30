@@ -1,0 +1,37 @@
+{% extends "mainApp/base.html" %}
+
+{% block title %}viewUpcomingSessions{% endblock %}
+
+{% block content %}
+{% load static %}
+<div class="ui centered grid">
+	<div class="ten wide column">
+<h2>Upcoming Sessions</h2>
+<table cellspacing="20">
+<tr>
+	<th>
+		Session Date
+	</th>
+	<th>
+		Session State
+	</th>
+	<th>
+		Tutor Key
+	</th>
+</tr>
+{% for session in all_sessions %}
+<tr>
+	<td>
+		<p>{{session.session_datetime}}</p>
+	</td>
+	<td>
+		<p>{{session.state}}</p>
+	</td>
+	<td>
+		<p>{{session.session_turor}}</p>
+	</td>
+	<td>
+		<a href="./cancelSession">Cancel</a>
+	</td>
+</tr>
+	</table>

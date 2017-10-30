@@ -82,8 +82,42 @@ def confirmPayment(request):
 	return HttpResponse("confirmPayment")
 
 #routes for cancel payment
+#currently only shows all sessions, not user specific
 def viewUpcomingSessions(request):
+	all_sessions = Session.objects.all()
+	return render(request, 'mainApp/viewUpcomingSessions.html',{'all_sessions': all_sessions, 'range5': range(5)})
+
+##  if we were to further implement search options for user sessions
+#	user_sessions = []
+##   not sure how to make this unique to a student profile using  'payment_student' ForeignKey
+#	datetime = request.GET['session_datetime']
+#	if(datetime!=''):
+#		user_sessions.append(Session.objects.filter(session_datetime=datetime))
+#
+#	curr_state = request.GET['state']
+#	if(state!=''):
+#		user_sessions.append(Session.objects.filter(state=curr_state))
+#
+#	coupon = request.GET['coupon_used']
+#	if(coupon_used!=''):
+#		user_sessions.append(Session.objects.filter(coupon=coupon_used))
+#
+#	tutor_key = request.GET['session_tutor']
+#	if(tutor_key!=''):
+#		user_sessions.append(Session.objects.filter(tutor_key=session_tutor))
+#
+#	session_cost = request.GET['amount']
+#	if(session_cost!=0):
+#		user_sessions.append(Transaction.objects.filter(session_cost=amount))
+#
+
+
+
+
+
 	return HttpResponse("viewUpcomingSessions")
+
+
 
 #post request
 def cancelSession(request):
