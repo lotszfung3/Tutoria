@@ -95,5 +95,20 @@ def viewUpcomingSessions(request, student_ID):
 
 
 #post request
-def cancelSession(request, session_ID):
-	return HttpResponse("cancelSession")
+def cancelSession(request, session_ID, student_ID):
+# Get Session ID
+	this_session = Session.objects.get(id=session_ID)
+	session_time = this_session.session_datetime
+	session_student_ID = Student.objects.get(id=student_ID)
+	session_tutor_ID = this_session.session_tutor
+	context = {'this_session': this_session, 'session_time': session_time, 'session_student_ID': session_student_ID, 'session_tutor_ID': session_tutor_ID,}
+	return render(request,'mainApp/cancelSession.html',context)
+
+
+
+
+
+
+
+
+

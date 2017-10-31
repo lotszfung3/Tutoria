@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^detailedProfile',views.detailedProfile,name='detailedProfile'),
     url(r'^confirmPayment$',views.confirmPayment,name='confirmPayment'),
     url(r'^(?P<student_ID>\d+)/upcomingSessions',views.viewUpcomingSessions,name='viewUpcomingSessions'),
-    url(r'^cancelSession/(?P<session_ID>\d+)',views.cancelSession,name='cancelSession'),
+    url(r'^(?P<student_ID>\d+)/cancelSession/(?P<session_ID>\d+)',views.cancelSession,name='cancelSession'),
     url(r'^register$',views.register,name='register'),
 	   url(r'^login$',views.login,name='login')
 ]

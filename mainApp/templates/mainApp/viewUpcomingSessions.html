@@ -1,7 +1,6 @@
 {% extends "mainApp/base.html" %}
 
 {% block title %}viewUpcomingSessions{% endblock %}
-
 {% block content %}
 <h2>Upcoming Sessions</h2>
 {% if student_sessions %}
@@ -35,7 +34,7 @@
 			<p>{{session.session_tutor}}</p>
 		</td>
 		<td>
-			<a href="/cancelSession/{{session.id}}">Cancel Session</a>
+			<a href="cancelSession/{{session.id}}">Cancel Session</a>
 		</td>
 	</tr>
 	{% endfor %}
