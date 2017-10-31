@@ -7,6 +7,7 @@
 {% load static %}
 <div class="ui centered grid">
 	<div class="ten wide column">
+
 <table class="ui structured table">
 
 	<tr>
@@ -56,18 +57,42 @@ function scheduling(date, string){
 	content = content + "</tr></thead>";
 
 	content = content + "<tbody>";
-	for(var i=0;i<10;i++){
-		content = content + "<tr>";
-		content = content + "<td>" + (i+9).toString() + ":00~" + (i+10).toString() + ":00</td>";
-		for(var j=0;j<7;j++){
-			if(string.charAt(i+j*10)=="a")
-				content = content + '<td class="selectable"><a href="./confirmPayment?slot=' + (i+j*10).toString() + '"> </a></td>';
-			else{
-				content = content + '<td class="active"> </td>';
+	if("{{tutor.tutor_type}}"=="Private"){
+		for(var i=0;i<10;i++){
+			content = content + "<tr>";
+			content = content + "<td>" + (i+9).toString() + ":00~" + (i+10).toString() + ":00</td>";
+			for(var j=0;j<7;j++){
+				if(string.charAt(i+j*10)=="a")
+					content = content + '<td class="selectable"><a href="./confirmPayment?tutorsID=' + {{tutor.id}} + '&slot=' + (i+j*10).toString() + '"> </a></td>';
+				else{
+					content = content + '<td class="active"> </td>';
+				}
 			}
+			content = content + "</tr>";
 		}
-		content = content + "</tr>";
 	}
+	else{
+		for(var i=0;i<20;i++){
+			content = content + "<tr>";
+			if(i%2==0){
+				content = content + "<td>" + (i/2+9).toString() + ":00~" + (i/2+9).toString() + ":30</td>";
+			}
+			else{
+				content = content + "<td>" + ((i-1)/2+9).toString() + ":30~" + ((i-1)/2+10).toString() + ":00</td>";
+			}
+			for(var j=0;j<7;j++){
+				if(string.charAt(i+j*10)=="a"){
+					content = content + '<td class="selectable"><a href="./confirmPayment?tutorsID=' + {{tutor.id}} + '&slot=' + (i+j*20).toString() + '"> </a></td>';
+				}
+				else{
+					content = content + '<td class="active"> </td>';
+				}
+			}
+			content = content + "</tr>";
+		}
+	}
+
+
 
 	content = content + "</tbody>";
 

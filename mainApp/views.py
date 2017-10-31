@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from .models import *
 from datetime import date
@@ -71,7 +71,37 @@ def detailedProfile(request):
 #post request for payment confirmation
 @login_required
 def confirmPayment(request):
-	return HttpResponse("confirmPayment")
+	tutor = Tutor.objects.get(id=request.GET['tutorsID'])
+	schedule = Schedule.objects.get(owned_tutor=tutor)
+	slot = int(request.GET['slot'])
+	if(str(schedule.available_timeslot)[slot]=='a'):
+		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(date.today())})
+	else:
+		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor})
+
+#accept request and create session
+@login_required
+def bookSession(request):
+	tutor = Tutor.objects.get(id=request.GET['tutorsID'])
+	schedule = Schedule.objects.get(owned_tutor=tutor)
+	time = int(request.GET['time'])
+	date = request.GET['date']
+	slot = int(request.GET['slot'])
+	if(tutor.tutor_type=="Private"):
+		time_str = str(time+9) + ":00:00"
+	else:
+		if(time%2==0):
+			time_str = str(int(time/2+9)) + ":00:00"
+		else:
+			time_str = str(int((time-1)/2+9)) + ":30:00"
+	student = Student.objects.get(id=1)
+	if(str(schedule.available_timeslot)[slot]=='a'):
+		schedule.available_timeslot = schedule.available_timeslot[:slot] + "b" + schedule.available_timeslot[(slot+1):]
+		schedule.save()
+		session = Session(session_tutor=tutor, session_datetime=date+" "+time_str, session_student=student, coupon_used=False)
+		session.save()
+
+	return redirect(viewUpcomingSessions)
 
 #routes for cancel payment
 @login_required
