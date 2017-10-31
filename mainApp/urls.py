@@ -11,5 +11,6 @@ urlpatterns = [
     url(r'^viewUpcomingSessions$',views.viewUpcomingSessions,name='viewUpcomingSessions'),
     url(r'^cancelSession$',views.cancelSession,name='cancelSession'),
     url(r'^register$',views.register,name='register'),
-	   url(r'^login$',views.login,name='login')
+	url(r'^login$',views.login_h,name='login'),
+	url(r'^logout$',views.logout_h,name='logout')
 ]

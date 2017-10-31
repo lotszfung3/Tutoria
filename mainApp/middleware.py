@@ -10,11 +10,18 @@ class AuthRequiredMiddleware(object):
         # the view (and later middleware) are called.
 
 		response = self.get_response(request)
-		if request.path.find('login')>-1 and not request.user.is_authenticated():
+		print(request.user.is_authenticated())
+		if(request.path.find('admin')>-1):
+			return response
+		if(request.path.find('login')>-1 and request.user and request.user.is_authenticated()):
+			return HttpResponseRedirect('/main/findTutors')
+		if(request.path.find('login')>-1):
+			return response
+		if(request.user and request.user.is_authenticated()):
 			return response
 
-		if not request.user.is_authenticated():
-			return HttpResponseRedirect('login')
+		return HttpResponseRedirect('/main/login')
+
 
         # Code to be executed for each request/response after
         # the view is called.

@@ -2,9 +2,18 @@
 
 {% block title %}Login{% endblock %}
 
+{% block alt_menu %}
+  <div class="ui container">
+   <div class="header  item">
+    Please Log in{{Request.user}}
+  </div>
+    </div>
+
+ {% endblock %}
+ 
 {% block content %}
 <div class="ui container segment">
-<form class="ui form" action="./login" method="POST">
+<form class="ui form" action="./login" method="POST">{% csrf_token %}
   <div class="field">
     <label>Username</label>
     <input type="text" name="username" placeholder="Username">

@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 class SubjectCode(models.Model):
@@ -7,6 +8,7 @@ class SubjectCode(models.Model):
 		return self.subject_code
 
 class Student(models.Model):
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	name=models.CharField(max_length=60)
 	email=models.CharField(max_length=60)
 	phoneNumber=models.CharField(max_length=10)
@@ -22,6 +24,7 @@ class Tutor(models.Model):
 	phoneNumber=models.CharField(max_length=10)
 	photo_url=models.CharField(max_length=30)
 	amount=models.IntegerField(default=0)
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	#below different from student
 	tutor_type=models.CharField(max_length=8)#Contract/Private
 	university=models.CharField(max_length=60)

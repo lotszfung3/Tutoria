@@ -9,10 +9,12 @@
 <body>
 
     <div class="ui menu">
-	{% if False %}
-	
+	{% block alt_menu %}
+	  <a class="item active">
+    FindTutors
+   </a>
     <div class="ui simple dropdown item">
-    Dropdown
+    My Info
     <i class="dropdown icon"></i>
     <div class="menu">
     <div class="item">View Profile</div>
@@ -23,16 +25,13 @@
 	<div class="item">Edit Unavailable Session</div>
     </div>
   </div>
-  <a class="item active">
-    FindTutors
-  </a>
-  {% else %}
-  <div class="ui container">
-   <div class="header  item">
-    Please Log in{{Request.user}}
+
+    <div class="right menu">
+    <a  href='./logout' class="ui item">
+      Logout
+    </a>
   </div>
-    </div class="ui container">
-  {% endif %}
+  {% endblock %}
 </div>
     <div class="ui paded container" id="content">
         {% block content %}{% endblock %}
