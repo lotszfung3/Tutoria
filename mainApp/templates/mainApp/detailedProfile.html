@@ -81,7 +81,7 @@ function scheduling(date, string){
 				content = content + "<td>" + ((i-1)/2+9).toString() + ":30~" + ((i-1)/2+10).toString() + ":00</td>";
 			}
 			for(var j=0;j<7;j++){
-				if(string.charAt(i+j*10)=="a"){
+				if(string.charAt(i+j*20)=="a"){
 					content = content + '<td class="selectable"><a href="./confirmPayment?tutorsID=' + {{tutor.id}} + '&slot=' + (i+j*20).toString() + '"> </a></td>';
 				}
 				else{
