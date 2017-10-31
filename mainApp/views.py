@@ -82,12 +82,15 @@ def confirmPayment(request):
 	return HttpResponse("confirmPayment")
 
 #routes for cancel payment
-def viewUpcomingSessions(request):
-	# Get student id
-	this_student = Student.objects.get(id=request.GET['studentID'])
-	# retrieve list of sessions associated with the student
-	# currently only retrieves sessions with (state='normal')
+def viewUpcomingSessions(request, student_ID):
+# Get Student ID
+	this_student = Student.objects.get(id=student_ID)
+
+# retrieve list of sessions associated with the student
+# currently only retrieves sessions with (state='normal')
 	student_sessions = this_student.session_set.filter(state='normal')
+
+# return list of sessions
 	return render(request, 'mainApp/viewUpcomingSessions.html',{'student_sessions': student_sessions, 'range5': range(5)})
 
 ##  if we were to further implement search options for user sessions
@@ -112,14 +115,6 @@ def viewUpcomingSessions(request):
 #	session_cost = request.GET['amount']
 #	if(session_cost!=0):
 #		user_sessions.append(Transaction.objects.filter(session_cost=amount))
-#
-
-
-
-
-
-	return HttpResponse("viewUpcomingSessions")
-
 
 
 #post request
