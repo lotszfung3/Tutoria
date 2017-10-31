@@ -6,12 +6,13 @@
 <center>
 	<h3>Session ID: <p>{{this_session}}</p></h3>
 	<h3>Tutor: <p>{{session_tutor_ID}}</p></h3>
-	<form class="ui form" action="viewUpcomingSessions" method="get">
+	<form class="ui form" action="/main/{{this_session}}/sessionCancelled" method="get">
 		<div class="field">
-			<div class="ui checkbox">
-				<input type="checkbox" name="YesNo" tabindex="0">
-				<label>Are you sure you want to cancel this Session at <p>{{session_time}}?</p></label>
-			</div>
+    		<label>Are you sure you want to cancel the session?</label>
+    		<select name="YesNoCancel">
+      			<option value="Y">Yes</option>
+     			<option value="N">No</option>
+   			 </select>
 		</div>
 		<button class="ui button" type="submit">Submit</button>
 	</form>

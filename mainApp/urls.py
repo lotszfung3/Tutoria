@@ -9,9 +9,10 @@ urlpatterns = [
     url(r'^tutorsList',views.tutorsList,name='tutorsList'),
     url(r'^detailedProfile',views.detailedProfile,name='detailedProfile'),
     url(r'^confirmPayment$',views.confirmPayment,name='confirmPayment'),
-    url(r'^(?P<student_ID>\d+)/upcomingSessions',views.viewUpcomingSessions,name='viewUpcomingSessions'),
-    url(r'^(?P<student_ID>\d+)/cancelSession/(?P<session_ID>\d+)',views.cancelSession,name='cancelSession'),
+    url(r'^upcomingSessions',views.viewUpcomingSessions,name='viewUpcomingSessions'),
+    url(r'^cancelSession/(?P<session_ID>\d+)',views.cancelSession,name='cancelSession'),
+    url(r'^(?P<session_ID>\d+)/sessionCancelled',views.sessionCancelled,name='sessionCancelled'),
     url(r'^register$',views_account.register,name='register'),
-	url(r'^login$',views_account.login_h,name='login'),
-	url(r'^logout$',views_account.logout_h,name='logout')
+	  url(r'^login$',views_account.login_h,name='login'),
+  	url(r'^logout$',views_account.logout_h,name='logout')
 ]
