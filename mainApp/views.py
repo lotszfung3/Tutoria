@@ -83,40 +83,17 @@ def confirmPayment(request):
 
 #routes for cancel payment
 def viewUpcomingSessions(request, student_ID):
-# Get Student ID
+	# Get Student ID
 	this_student = Student.objects.get(id=student_ID)
 
-# retrieve list of sessions associated with the student
-# currently only retrieves sessions with (state='normal')
+	# retrieve list of sessions associated with the student
+	# currently only retrieves sessions with (state='normal')
 	student_sessions = this_student.session_set.filter(state='normal')
-
-# return list of sessions
-	return render(request, 'mainApp/viewUpcomingSessions.html',{'student_sessions': student_sessions, 'range5': range(5)})
-
-##  if we were to further implement search options for user sessions
-#	user_sessions = []
-##   not sure how to make this unique to a student profile using  'payment_student' ForeignKey
-#	datetime = request.GET['session_datetime']
-#	if(datetime!=''):
-#		user_sessions.append(Session.objects.filter(session_datetime=datetime))
-#
-#	curr_state = request.GET['state']
-#	if(state!=''):
-#		user_sessions.append(Session.objects.filter(state=curr_state))
-#
-#	coupon = request.GET['coupon_used']
-#	if(coupon_used!=''):
-#		user_sessions.append(Session.objects.filter(coupon=coupon_used))
-#
-#	tutor_key = request.GET['session_tutor']
-#	if(tutor_key!=''):
-#		user_sessions.append(Session.objects.filter(tutor_key=session_tutor))
-#
-#	session_cost = request.GET['amount']
-#	if(session_cost!=0):
-#		user_sessions.append(Transaction.objects.filter(session_cost=amount))
+	# return list of sessions
+	context = {'student_sessions': student_sessions, 'range5' : range(5)}
+	return render(request,'mainApp/viewUpcomingSessions.html',context)
 
 
 #post request
-def cancelSession(request):
+def cancelSession(request, session_ID):
 	return HttpResponse("cancelSession")
