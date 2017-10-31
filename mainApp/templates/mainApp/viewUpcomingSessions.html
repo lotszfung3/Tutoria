@@ -1,0 +1,45 @@
+{% extends "mainApp/base.html" %}
+
+{% block title %}viewUpcomingSessions{% endblock %}
+{% block content %}
+<h2>Upcoming Sessions</h2>
+{% if student_sessions %}
+<table cellspacing="20">
+	<tr>
+		<th>
+			Session Date
+		</th>
+		<th>
+			Session ID
+		</th>
+		<th>
+			Session State
+		</th>
+		<th>
+			Tutor
+		</th>
+	</tr>
+	{% for session in student_sessions %}
+	<tr>
+		<td>
+			<p>{{session.session_datetime}}</p>
+		</td>
+		<td>
+			<p>{{session.id}}</p>
+		</td>
+		<td>
+			<p>{{session.state}}</p>
+		</td>
+		<td>
+			<p>{{session.session_tutor}}</p>
+		</td>
+		<td>
+			<a href="cancelSession/{{session.id}}">Cancel Session</a>
+		</td>
+	</tr>
+	{% endfor %}
+</table>
+{% else %}
+	<p>No sessions currently booked</p>
+{% endif %}
+{% endblock %}

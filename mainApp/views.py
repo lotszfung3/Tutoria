@@ -103,10 +103,25 @@ def confirmPayment(request):
 
 #routes for cancel payment
 @login_required
-def viewUpcomingSessions(request):
-	return HttpResponse("viewUpcomingSessions")
+def viewUpcomingSessions(request, student_ID):
+	# Get Student ID
+	this_student = Student.objects.get(id=student_ID)
+
+	# retrieve list of sessions associated with the student
+	# currently only retrieves sessions with (state='normal')
+	student_sessions = this_student.session_set.filter(state='normal')
+	# return list of sessions
+	context = {'student_sessions': student_sessions, 'range5' : range(5)}
+	return render(request,'mainApp/viewUpcomingSessions.html',context)
+
 
 #post request
 @login_required
-def cancelSession(request):
-	return HttpResponse("cancelSession")
+def cancelSession(request, session_ID, student_ID):
+# Get Session ID
+	this_session = Session.objects.get(id=session_ID)
+	session_time = this_session.session_datetime
+	session_student_ID = Student.objects.get(id=student_ID)
+	session_tutor_ID = this_session.session_tutor
+	context = {'this_session': this_session, 'session_time': session_time, 'session_student_ID': session_student_ID, 'session_tutor_ID': session_tutor_ID,}
+	return render(request,'mainApp/cancelSession.html',context)
