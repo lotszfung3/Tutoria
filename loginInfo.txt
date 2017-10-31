@@ -3,6 +3,25 @@ http://localhost:8000/admin/
 username:admin
 password:admin1867
 
-testuser:
+teststudent
 username:peter123
-password:mnbv1867
+pw:mnbv1867
+
+
+students:
+    ada123
+    bob123
+    cal123
+
+tutors:
+    private:
+    dub123
+    eli123
+    
+    contract:
+    fip123
+    gib123
+    
+    
+    
+Password of all account: mnbv1234

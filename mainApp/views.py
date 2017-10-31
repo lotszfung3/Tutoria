@@ -5,7 +5,7 @@ from datetime import date
 from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-
+from .utils import getSlotIdfromDateTime
 @login_required
 def findTutors(request):
 	return render(request,'mainApp/findTutors.html',{'std':request.user.student})
@@ -125,7 +125,7 @@ def cancelSession(request, session_ID):
 	session_time = this_session.session_datetime
 	session_student_ID = this_student.id
 	session_tutor_ID = this_session.session_tutor
-	context = {'this_session': this_session, 'session_time': session_time, 'session_student_ID': session_student_ID, 'session_tutor_ID': session_tutor_ID,}
+	context = {'this_session': this_session, 'session_time': session_time, 'session_student_ID': session_student_ID, 'session_tutor_ID': session_tutor_ID}
 	return render(request,'mainApp/cancelSession.html',context)
 
 
@@ -135,9 +135,17 @@ def sessionCancelled(request, session_ID):
 	if (toCancel=='N'):
 		return HttpResponseRedirect('/main/upcomingSessions')
 	else:
+        #change session info
 		this_session = Session.objects.get(id=session_ID)
 		this_session.state='cancelled'
 		this_session.save()
+        #change tutor schedule
+		temp_tutor=this_session.session_tutor
+		temp_slot=getSlotIdfromDateTime(this_session.session_datetime,temp_tutor.tutor_type)
+		temp_sch=temp_tutor.schedule
+		print("slot"+ str(this_session.session_datetime.minute))
+		temp_sch.available_timeslot=temp_sch.available_timeslot[:temp_slot]+"a"+temp_sch.available_timeslot[temp_slot+1:]
+		temp_sch.save()
 		return render(request,'mainApp/sessionCancelled.html')
 
 
