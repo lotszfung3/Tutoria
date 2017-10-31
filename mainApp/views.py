@@ -94,7 +94,7 @@ def bookSession(request):
 			time_str = str(int(time/2+9)) + ":00:00"
 		else:
 			time_str = str(int((time-1)/2+9)) + ":30:00"
-	student = Student.objects.get(id=1)
+	student = Student.objects.get(id=request.user.student.id)
 	if(str(schedule.available_timeslot)[slot]=='a'):
 		schedule.available_timeslot = schedule.available_timeslot[:slot] + "b" + schedule.available_timeslot[(slot+1):]
 		schedule.save()
