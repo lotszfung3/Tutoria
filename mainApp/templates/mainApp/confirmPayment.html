@@ -65,12 +65,9 @@ function getDateTime(slot){
 		date = "Date: " + date;
 		document.getElementById("date").innerHTML = date;
 		var str = '<input type="hidden" name="date" value="' + year.toString() + "-" + date.slice(6) + '">';
-		if(i%2==1){
-			str = str + '<input type="hidden" name="time" value="' + (i-1)/2 + '">';
-		}
-		else{
-			str = str + '<input type="hidden" name="time" value="' + i/2 + '">';
-		}
+		
+		str = str + '<input type="hidden" name="time" value="' + i + '">';
+		
 		document.getElementById("input").innerHTML = str;
 	} 
 }
