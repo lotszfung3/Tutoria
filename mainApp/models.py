@@ -42,7 +42,7 @@ class Session(models.Model):
 	session_student=models.ForeignKey(Student)
 	session_tutor=models.ForeignKey(Tutor)
 	def __str__ (self):
-		return self.id
+		return str(self.id)
 	
 #record twice for students wallet and tutors wallet
 class Transaction(models.Model):
