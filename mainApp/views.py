@@ -143,7 +143,7 @@ def sessionCancelled(request, session_ID):
 		temp_tutor=this_session.session_tutor
 		temp_slot=getSlotIdfromDateTime(this_session.session_datetime,temp_tutor.tutor_type)
 		temp_sch=temp_tutor.schedule
-		print("slot"+ str(this_session.session_datetime.minute))
+		print("slot"+ str(temp_slot))
 		temp_sch.available_timeslot=temp_sch.available_timeslot[:temp_slot]+"a"+temp_sch.available_timeslot[temp_slot+1:]
 		temp_sch.save()
 		return render(request,'mainApp/sessionCancelled.html')
