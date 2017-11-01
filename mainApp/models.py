@@ -9,21 +9,17 @@ class SubjectCode(models.Model):
 
 class Student(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
-	name=models.CharField(max_length=60)
-	email=models.CharField(max_length=60)
 	phoneNumber=models.CharField(max_length=10)
 	photo_url=models.CharField(max_length=30)
-	amount=models.IntegerField(default=0)
+	amount=models.DecimalField(max_digits=7, decimal_places=2)
 	def __str__ (self):
-		return self.name
+		return self.user.first_name
 
 
 class Tutor(models.Model):
-	name=models.CharField(max_length=60)
-	email=models.CharField(max_length=60)
 	phoneNumber=models.CharField(max_length=10)
 	photo_url=models.CharField(max_length=30)
-	amount=models.IntegerField(default=0)
+	amount=models.DecimalField(max_digits=7, decimal_places=2)
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	#below different from student
 	tutor_type=models.CharField(max_length=8)#Contract/Private
@@ -31,12 +27,12 @@ class Tutor(models.Model):
 	teach_course_code=models.ManyToManyField(SubjectCode)
 	subject_tag=models.CharField(max_length=60)
 	hourly_rate=models.IntegerField(default=100)
-	introduction=models.CharField(max_length=200)
+	introduction=models.TextField(default="I love programming")
 	activated=models.BooleanField()#profiles show to public or not
 	avg_review=models.IntegerField(default=-1)
 	#schduel: tutor.schedule
 	def __str__ (self):
-		return self.name
+		return self.user.first_name
 
 class Session(models.Model):
 	coupon_used=models.BooleanField()
@@ -55,7 +51,7 @@ class Transaction(models.Model):
 	payment_student=models.ForeignKey(Student)
 	payment_tutor=models.ForeignKey(Tutor)
 	def __str__ (self):
-		return self.id
+		return str(self.id)
 
 
 

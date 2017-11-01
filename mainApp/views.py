@@ -74,8 +74,9 @@ def confirmPayment(request):
 	tutor = Tutor.objects.get(id=request.GET['tutorsID'])
 	schedule = Schedule.objects.get(owned_tutor=tutor)
 	slot = int(request.GET['slot'])
+	student = Student.objects.get(id=request.user.student.id)
 	if(str(schedule.available_timeslot)[slot]=='a'):
-		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(date.today())})
+		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(date.today()), 'student': student})
 	else:
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor})
 
@@ -95,6 +96,8 @@ def bookSession(request):
 		else:
 			time_str = str(int((time-1)/2+9)) + ":30:00"
 	student = Student.objects.get(id=request.user.student.id)
+	student.amount = student.amount - tutor.hourly_rate
+	student.save()
 	if(str(schedule.available_timeslot)[slot]=='a'):
 		schedule.available_timeslot = schedule.available_timeslot[:slot] + "b" + schedule.available_timeslot[(slot+1):]
 		schedule.save()
@@ -146,6 +149,9 @@ def sessionCancelled(request, session_ID):
 		print("slot"+ str(temp_slot))
 		temp_sch.available_timeslot=temp_sch.available_timeslot[:temp_slot]+"a"+temp_sch.available_timeslot[temp_slot+1:]
 		temp_sch.save()
+		#add value back to student
+		this_session.session_student.amount+=temp_tutor.hourly_rate
+		this_session.session_student.save()
 		return render(request,'mainApp/sessionCancelled.html')
 
 
