@@ -12,8 +12,9 @@ urlpatterns = [
     url(r'^upcomingSessions',views.viewUpcomingSessions,name='viewUpcomingSessions'),
     url(r'^cancelSession/(?P<session_ID>\d+)',views.cancelSession,name='cancelSession'),
     url(r'^(?P<session_ID>\d+)/sessionCancelled',views.sessionCancelled,name='sessionCancelled'),
-    url(r'^register$',views_account.register,name='register'),
-	  url(r'^login$',views_account.login_h,name='login'),
+    url(r'^bookSession$', views.bookSession, name='bookSession'),
+	url(r'^register$',views_account.register,name='register'),
+	url(r'^login$',views_account.login_h,name='login'),
   	url(r'^logout$',views_account.logout_h,name='logout'),
-    url(r'^bookSession$', views.bookSession, name='bookSession')
+	url(r'^forgetPw$',views_account.forgetPw,name='forgetPw')
 ]

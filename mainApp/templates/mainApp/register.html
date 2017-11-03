@@ -1,0 +1,121 @@
+{% extends "mainApp/base.html" %}
+
+{% block title %}Register in Tutoria{% endblock %}
+
+
+{% block alt_menu %}
+
+  <div class="ui container">
+   <div class="header item">
+    Please Register first
+  </div>
+  </div>
+ {% endblock %}
+ 
+{% block content %}
+<div class="ui segment">
+<form class="form ui" method="post" action="./register">{% csrf_token %}
+	
+	<h4 class="ui dividing header">Personal Information</h4>
+  
+	<div class="fields">
+    <div class="ten wide field">
+      <label>Name</label>
+      <input type="text" name="name" placeholder="Name">
+    </div>
+    <div class="ten wide field">
+      <label>User Name</label>
+      <input type="text" name="username"  placeholder="User Name">
+    </div>
+	</div>
+	
+	<div class="fields">
+    <div class="twelve wide field">
+      <label>E-mail</label>
+      <input type="text" name="email" placeholder="E-mail">
+    </div>
+    <div class="eight wide field">
+      <label>Password</label>
+      <input type="password" name="password"  placeholder="Password">
+    </div>
+	</div>
+	
+	<div class="fields">
+    <div class="eight wide field">
+      <label>Phone Number</label>
+      <input type="text" name="phone" placeholder="Phone number">
+    </div>
+    <div class="twelve wide field">
+      <label>Pick image as your icon</label>
+      <input type="file" name="myImage" accept="image/*" />
+    </div>
+	</div>
+	
+	<div class="field">
+	
+    <div class="ui slider checkbox">
+      <input type="checkbox" name="role">
+      <label>I would also like to be a tutor!</label>
+    </div>
+	</div>
+	
+    <h4 class="ui dividing header">Additional information for tutor</h4>
+	<div class="fields">
+    <div class="ten wide field">
+      <label>University</label>
+      <input type="text" name="uni" placeholder="University">
+    </div>
+    <div class="ten wide field">
+      <label>Tag your Profile using '#'</label>
+      <input type="text" name="tag" placeholder="e.g. #Tags #Tutoria">
+    </div>
+	</div>
+	
+      <div class="inline fields">
+    <label>What type of tutor are you ?</label>
+    <div class="field">
+      <div class="ui radio checkbox">
+        <input type="radio" name="type" checked="checked" value="c">
+        <label>Contract</label>
+      </div>
+    </div>
+    <div class="field">
+      <div class="ui radio checkbox">
+        <input type="radio" name="type" value="p">
+        <label>Private</label>
+      </div>
+    </div>
+		</div>
+	
+	<div class="fields">    
+	<div class="ten wide field">
+      <label>Hourly Rate</label>
+      <input type="number" name="hourlyRate" placeholder="Hourly Rate">
+    </div>
+	
+	
+<div class="ten wide field">	
+	<label>Subect code</label>
+<select name="subject" multiple="" class="ui fluid dropdown">
+<option value="">Subject you are studying</option>
+<option value="COMP3278">COMP3278</option>
+<option value="COMP3297">COMP3297</option>
+</select>
+</div>
+	</div>
+	<div class="field">    
+      <label>Personal Description</label>
+      <input type="text" name="description" placeholder="Descript yourself">
+    </div>
+<button class="ui fluid large teal submit button" type="submit">Submit</button>
+	
+	</form>
+	
+	</div>
+<script>
+$('.ui.dropdown').dropdown();
+$('.ui.checkbox').checkbox();
+	
+</script>
+ 
+{% endblock  %}

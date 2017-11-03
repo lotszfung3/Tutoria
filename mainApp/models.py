@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # Create your models here.
 class SubjectCode(models.Model):
@@ -11,7 +13,12 @@ class Student(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	phoneNumber=models.CharField(max_length=10)
 	photo_url=models.CharField(max_length=30)
-	amount=models.DecimalField(max_digits=7, decimal_places=2)
+	amount=models.DecimalField(max_digits=7, decimal_places=2,default=0)
+	@classmethod
+	def create(cls, user):
+		student = cls(user=user)
+        # do something with the book
+		return student
 	def __str__ (self):
 		return self.user.first_name
 
@@ -19,20 +26,37 @@ class Student(models.Model):
 class Tutor(models.Model):
 	phoneNumber=models.CharField(max_length=10)
 	photo_url=models.CharField(max_length=30)
-	amount=models.DecimalField(max_digits=7, decimal_places=2)
+	amount=models.DecimalField(max_digits=7, decimal_places=2,default=0)
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	#below different from student
-	tutor_type=models.CharField(max_length=8)#Contract/Private
+	tutor_type=models.CharField(max_length=8,default="Private")#Contract/Private
 	university=models.CharField(max_length=60)
 	teach_course_code=models.ManyToManyField(SubjectCode)
 	subject_tag=models.CharField(max_length=60)
 	hourly_rate=models.IntegerField(default=100)
 	introduction=models.TextField(default="I love programming")
-	activated=models.BooleanField()#profiles show to public or not
+	activated=models.BooleanField(default=True)#profiles show to public or not
 	avg_review=models.IntegerField(default=-1)
 	#schduel: tutor.schedule
+	@classmethod
+	def create(cls, user,phone,introduction,hourly_rate,subject_code,tag,type):
+		tutor = cls(user=user)
+		tutor.phoneNumber=phone
+		tutor.introduction=introduction
+		tutor.hourly_rate=hourly_rate
+		tutor.subject_tag=tag
+		if(type=='c'):
+			tutor.tutor_type="Contract"
+		tutor.save()
+		if(isinstance(subject_code,list)):
+			for i in subject_code:
+				tutor.teach_course_code.add(SubjectCode.objects.get(subject_code=i))
+		else:
+			tutor.teach_course_code.add(SubjectCode.objects.get(subject_code=subject_code))
+        # do something with the book
+		return tutor
 	def __str__ (self):
-		return self.user.first_name
+		return self.user.first_name	
 
 class Session(models.Model):
 	coupon_used=models.BooleanField()
@@ -57,10 +81,17 @@ class Transaction(models.Model):
 
 class Schedule(models.Model):
 	owned_tutor=models.OneToOneField(Tutor)
-	start_date=models.DateField()
-	available_timeslot=models.CharField(max_length=280)
+	start_date=models.DateField(auto_now_add=True)
+	available_timeslot=models.CharField(max_length=280,default="a"*140)
+	@classmethod
+	def create(cls, tutor):
+		if(tutor.tutor_type=="Contract"):
+			sch = cls(owned_tutor=tutor,available_timeslot="a"*280)		
+		else:
+			sch = cls(owned_tutor=tutor)
+		return sch
 	def __str__ (self):
-		return self.owned_tutor.name
+		return str(self.owned_tutor)+"'s schdedule"
 
 
 class Review(models.Model):
@@ -78,4 +109,14 @@ class Coupon(models.Model):
 	expiry_date=models.DateTimeField('expiry date')
 	def __str__ (self):
 		return self.coupon_code
-
+#trigger when user created
+#user ->student (and/or) tutor 
+#tutor ->schedule
+@receiver(post_save, sender=Tutor)
+def create_tutor_schedule(sender, instance, created, **kwargs):
+	if created:
+		Schedule.create(instance).save()
+@receiver(post_save, sender=User)
+def create_user_student(sender, instance, created, **kwargs):
+	if created:
+		Student.create(instance).save()
