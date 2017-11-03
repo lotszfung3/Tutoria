@@ -1,10 +1,10 @@
 from django.contrib.auth.models import User
 from django.test import TestCase,Client
-from .utils import getSlotIdfromDateTime
+from .utils import getSlotIdfromDateTime,uploadImage
 from .models import Tutor,SubjectCode
 # Create your tests here.
 class mainTestCase(TestCase):
-	def setUp(self):
+	def setUp1(self):
 		sc=SubjectCode.objects.create(subject_code="COMP3258")
 		sc.save()
 		sc=SubjectCode.objects.create(subject_code="COMP3279")
@@ -25,8 +25,7 @@ class mainTestCase(TestCase):
 								 "subject":"COMP3279",
 								})
 	def test_main(self):
-		self.user=User.objects.all()[0]
-		print(self.user.tutor.schedule.available_timeslot)
+		uploadImage("asd",1,1)
 		
 		
 		

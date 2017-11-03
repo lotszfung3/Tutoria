@@ -1,0 +1,48 @@
+{% extends "mainApp/base.html" %}
+
+{% block title %}Forget Password{% endblock %}
+
+{% block alt_menu %}
+  <div class="ui container">
+   <div class="header  item">
+    Forget Password
+  </div>
+  </div>
+
+ {% endblock %}
+ 
+{% block content %}
+<div class="ui middle aligned center aligned grid">
+  <div class="column">
+    <h2 class="ui teal image header">
+      <div class="content">
+        Enter Your username or email to retrieve your password
+      </div>
+    </h2>
+    <form class="ui large form" action="" method="post">{% csrf_token %}
+      <div class="ui stacked segment">
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="user icon"></i>
+            <input type="text" name="username" placeholder="Username">
+          </div>
+        </div>
+		     <div class="field">
+          <div class="ui left icon input">
+            <i class="mail icon"></i>
+            <input type="text" name="email" placeholder="Email">
+          </div>
+        </div>
+        <button class="ui fluid large teal submit button" type="submit">Submit</button>
+      </div>
+      <div class="ui error message"></div>
+    </form>
+	  
+	<div class="ui message">
+	Forget your password? <a href="./login">Login</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+

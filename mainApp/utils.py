@@ -1,4 +1,8 @@
 from datetime import datetime, timezone
+from django.db import models
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+
 email_format='''
 Email Title: Tutoria :{}
 Email recipient:{}
@@ -16,6 +20,10 @@ def getSlotIdfromDateTime(s_date,tutor_type):
         days*=20
         days+=(s_date.hour-1)*2+(0 if s_date.minute==0 else 1)
     return days
+def uploadImage(file,user_id):
+	with open(path,'wb') as han:
+		han.write(file.read())
+		han.close()
 def emailGateway(email_type,recipients,info):#recipent:[student name, tutor name]
     if(email_type=='session_cancel'):
         print(email_format.format(" Session has been cancelled",recipients[0],"The session at {} has been cancelled.\n The amount {} has been refunded to your wallet.".format(info.datetime,info.amount)))
@@ -30,8 +38,9 @@ def emailGateway(email_type,recipients,info):#recipent:[student name, tutor name
         print(email_format.format(" Transaction has made.",recipients[0],"The transaction of id {} has made.\n The amount {} has been deducted to your wallet.".format(info.datetime,info.amount)))
         print(email_format.format(" Transaction has made.",recipients[1],"The transaction of id {} has made.\n The amount {} has been added to your wallet".format(info.datetime,info.amount)))
     elif(email_type=='wallet_handle'):
-        print(email_format.format(" Wallet transaction is done",recipients[0],"The amount {} has been {} your wallet".format(abs(info.amount),"added to" if info.amount>0 else "deducted from")))
-
+        print(email_format.format(" Wallet transaction is done",recipients,"The amount {} has been {} your wallet".format(abs(info.amount),"added to" if info.amount>0 else "deducted from")))
+    elif(email_type=='resetPw'):
+        print(email_format.format("Reset your password",recipients,"You can use the following link to reset your password:\n{}".format(info)))
 def paymentGateway(user,amount):
     user.amount+=amount
     user.save()
