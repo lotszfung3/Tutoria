@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase,Client
 from .utils import getSlotIdfromDateTime,uploadImage
 from .models import Tutor,SubjectCode
+from django.contrib.auth.password_validation import validate_password
 # Create your tests here.
 class mainTestCase(TestCase):
 	def setUp1(self):
@@ -25,7 +26,8 @@ class mainTestCase(TestCase):
 								 "subject":"COMP3279",
 								})
 	def test_main(self):
-		uploadImage("asd",1,1)
-		
-		
+		tutor=Tutor.objects.all()[0]
+		tutor.subject_tag.add(SubjectCode.objects.get(subject_code="COMP3258"))
+		tutor.subject_tag.add(SubjectCode.objects.get(subject_code="COMP3278"))
+		tutor.save()
 		

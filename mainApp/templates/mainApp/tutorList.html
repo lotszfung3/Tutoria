@@ -15,7 +15,7 @@
 			<table class="ui selectable table">
 				<tr>
 					<td>
-						<p>	Tutor Name: {{tutor.name}}<br>
+						<p>	Tutor Name: {{tutor.user.first_name}}<br>
 							University: {{tutor.university}}<br>
 							Rating: {% with tutor.avg_review as ave %}{% if ave < 0 %}not available{% else %}{% for i in range5 %}{% if i < ave %}★{% else	 %}☆{% endif %}{% endfor %}{% endif %}{% endwith %}<br>
 							Hourly Rate: {{tutor.hourly_rate}}</p>

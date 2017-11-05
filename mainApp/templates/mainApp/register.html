@@ -14,6 +14,13 @@
  
 {% block content %}
 <div class="ui segment">
+	 {% if message %}
+  <div class="ui negative message">
+  <div class="header">
+    {{message}}
+  </div>
+  </div>
+	  {% endif %}
 <form class="form ui" method="post" action="./register" enctype="multipart/form-data">{% csrf_token %}
 	
 	<h4 class="ui dividing header">Personal Information</h4>
@@ -21,40 +28,40 @@
 	<div class="fields">
     <div class="ten wide field">
       <label>Name</label>
-      <input type="text" name="name" placeholder="Name">
+      <input type="text" name="name" placeholder="Name" required>
     </div>
     <div class="ten wide field">
       <label>User Name</label>
-      <input type="text" name="username"  placeholder="User Name">
+      <input type="text" name="username"  placeholder="User Name" required>
     </div>
 	</div>
 	
 	<div class="fields">
     <div class="twelve wide field">
       <label>E-mail</label>
-      <input type="text" name="email" placeholder="E-mail">
+      <input type="email" name="email" placeholder="E-mail" required>
     </div>
     <div class="eight wide field">
       <label>Password</label>
-      <input type="password" name="password"  placeholder="Password">
+      <input type="password" name="password"  placeholder="Password" required minlength=8>
     </div>
 	</div>
 	
 	<div class="fields">
     <div class="eight wide field">
       <label>Phone Number</label>
-      <input type="text" name="phone" placeholder="Phone number">
+      <input type="text" name="phone" placeholder="Phone number" required>
     </div>
     <div class="twelve wide field">
       <label>Pick image as your icon</label>
-      <input type="file" name="myImage" accept="image/*" />
+      <input type="file" name="myImage" accept="image/*" required/>
     </div>
 	</div>
 	
 	<div class="field">
 	
     <div class="ui slider checkbox">
-      <input type="checkbox" name="role">
+      <input type="checkbox" name="role" onclick='alert("sd'>
       <label>I would also like to be a tutor!</label>
     </div>
 	</div>
@@ -63,11 +70,11 @@
 	<div class="fields">
     <div class="ten wide field">
       <label>University</label>
-      <input type="text" name="uni" placeholder="University">
+      <input class="tutor" type="text" name="uni" placeholder="University">
     </div>
     <div class="ten wide field">
       <label>Tag your Profile using '#'</label>
-      <input type="text" name="tag" placeholder="e.g. #Tags #Tutoria">
+      <input class="tutor" type="text" name="tag" placeholder="e.g. #Tags #Tutoria" pattern="(#.+)+">
     </div>
 	</div>
 	
@@ -90,7 +97,7 @@
 	<div class="fields">    
 	<div class="ten wide field">
       <label>Hourly Rate</label>
-      <input type="number" name="hourlyRate" placeholder="Hourly Rate">
+      <input class="tutor" type="number" name="hourlyRate" pattern="[0-9]" placeholder="Hourly Rate">
     </div>
 	
 	
@@ -98,14 +105,15 @@
 	<label>Subect code</label>
 <select name="subject" multiple="" class="ui fluid dropdown">
 <option value="">Subject you are studying</option>
-<option value="COMP3278">COMP3278</option>
-<option value="COMP3297">COMP3297</option>
+	{% for code in subject_list %}
+<option value="{{code.subject_code}}">{{code.subject_code}}</option>
+	{% endfor %}
 </select>
 </div>
 	</div>
 	<div class="field">    
       <label>Personal Description</label>
-      <input type="text" name="description" placeholder="Descript yourself">
+      <input class="tutor" type="text" name="description" placeholder="Descript yourself">
     </div>
 <button class="ui fluid large teal submit button" type="submit">Submit</button>
 	
@@ -114,8 +122,14 @@
 	</div>
 <script>
 $('.ui.dropdown').dropdown();
-$('.ui.checkbox').checkbox();
-	
+$('.ui.checkbox').checkbox({
+onChecked: function() {
+      $('.tutor').attr("required",true);
+    },
+    onUnchecked: function() {
+      $('.tutor').removeAttr("required")
+    }});
+
 </script>
  
 {% endblock  %}

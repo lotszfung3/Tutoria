@@ -1,5 +1,6 @@
 from django.apps import AppConfig
-
+from .utils import test
 
 class MainappConfig(AppConfig):
-    name = 'mainApp'
+	name = 'mainApp'
+	#def ready(self):

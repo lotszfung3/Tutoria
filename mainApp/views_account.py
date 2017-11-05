@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .models import *
+from .models import User,Student,Tutor,SubjectCode
 from datetime import date,timedelta
 from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import HttpResponseRedirect
@@ -9,25 +9,37 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.signing import TimestampSigner
 from .utils import uploadImage,emailGateway
+from django.contrib.auth.password_validation import validate_password
+
+message_dict={"l_logout":"You have logged out.","l_fail":"Your username or your password doesn't match",
+			 "l_register":"You have registered your account sucessfully","l_reset":"You have reset your password",
+			 "r_pw":"The passwrod is too weak","l_fp":"Please check your registered email to reset password",
+			 "l_fpfail":"The username or email doesn't belongs to any user","rp_fail":"There is something wrong"}
 
 @csrf_exempt
 def test(request):
 	if(request.method=='GET'):
-		return render(request, 'mainApp/test.html')
+		'''tutor=Tutor.objects.all()[0]
+		tutor.teach_course_code.add(SubjectCode.objects.get(subject_code="COMP3258"))
+		tutor.teach_course_code.add(SubjectCode.objects.get(subject_code="COMP3278"))
+		tutor.save()'''
 	else:
+		print(request.POST.getlist('subject'))
 		return HttpResponse("post")
 	
 @login_required
 def logout_h(request):
 	logout(request)
-	return HttpResponseRedirect('/main/login')
+	return HttpResponseRedirect('/main/login?message=l_logout')
 
 def login_h(request):
 	if request.method == 'GET':
 		if(request.user.is_authenticated()):
 			return HttpResponseRedirect('/main/findTutors')
-		return render(request, 'mainApp/login.html')
+		return render(request, 'mainApp/login.html',{'message':message_dict[request.GET['message']]} if 'message' in request.GET and request.GET['message'] in message_dict else None)
 	elif request.method == 'POST':
+		if('username' not in request.POST or 'password' not in request.POST):
+			return HttpResponseRedirect('./login?message=l_fail')
 		username=request.POST['username']
 		password=request.POST['password']
 		user=authenticate(request,username=username,password=password)
@@ -35,46 +47,54 @@ def login_h(request):
 			login(request,user)
 			return HttpResponseRedirect('./findTutors')
 		else:
-			return HttpResponseRedirect('./login')
+			return HttpResponseRedirect('./login?message=l_fail')
 
 def register(request):
 	if request.method == 'GET':
 		if(request.user.is_authenticated()):
 			return HttpResponseRedirect('/main/findTutors')
-		return render(request,'mainApp/register.html')
+		return render(request,'mainApp/register.html',{"subject_list":SubjectCode.getCodeList(),'message':message_dict[request.GET['message']] if 'message' in request.GET and request.GET['message'] in message_dict else None})
 	elif request.method == 'POST':
-
-		user = User.objects.create_user(request.POST['name'], request.POST['email'], request.POST['password'])
+		try:#test password strength
+			validate_password(request.POST['password'])
+		except:
+			return HttpResponseRedirect('/main/register?message=r_pw')
+		user = User.objects.create_user(request.POST['username'], request.POST['email'], request.POST['password'])
+		user.first_name=request.POST['name']
 		user.save()
-		if('myImage' in request.FILES):
-			uploadImage(request.FILES['myImage'],user.id)
+		imagePath=uploadImage(request.FILES['myImage'],user.id)
+		user.student.photo_url='profilepic/{}.jpg'.format(str(user.id))
 		user.student.phoneNumber=request.POST['phone']
 		user.student.save()
 		#if he want to be a tutor
-		if('role' in request.POST):
-			if('myImage' in request.FILES):
-				uploadImage(request.FILES['myImage'],user.id)
-			type=request.POST['type'] if 'type' in request.POST else 'p'
-			tut=Tutor.create(user=user,phone=request.POST['phone'],introduction=request.POST['description'],hourly_rate=request.POST['hourlyRate'],subject_code=request.POST['subject'],tag=request.POST['tag'],type=type)
-			tut.save()
-		return HttpResponseRedirect('/main/login?fail=t')
+		atype=request.POST['type'] if 'type' in request.POST else 'p'
+		tut=Tutor.create(user=user,phone=request.POST['phone'],introduction=request.POST['description'],hourly_rate=request.POST['hourlyRate'],uni=request.POST['uni'],
+							 subject_code=request.POST.getlist('subject'),tag=request.POST['tag'],atype=atype,imagePath='profilepic/{}.jpg'.format(str(user.id)))
+		tut.save()
+		return HttpResponseRedirect('/main/login?message=l_register')
 def forgetPw(request):
 	if request.method=='GET':
 		return render(request, 'mainApp/forgetPw.html')
 	elif request.method == "POST":
-		username=request.POST['username']
-		user=User.objects.filter(username=username)
-		if(user.exists()):
-			emailGateway("resetPw",user[0].email,request.get_host()+"/main/retrievePw?token="+TimestampSigner().sign(username).split(":")[1])
-			return HttpResponseRedirect('/main/login')
-		else:
-			return HttpResponseRedirect('/main/forgetPw')
+		if(request.POST['username']!=""):
+			username=request.POST['username']
+			user=User.objects.filter(username=username)
+			if(user.exists()):
+				emailGateway("resetPw",user[0].email,request.get_host()+"/main/retrievePw?token="+TimestampSigner().sign(username).split(":",maxsplit=1)[1])
+				return HttpResponseRedirect('/main/login?message=l_fp')
+		elif(request.POST['email']!=""):
+			email=request.POST['email']
+			user=User.objects.filter(email=email)
+			if(user.exists()):
+				emailGateway("resetPw",user[0].email,request.get_host()+"/main/retrievePw?token="+TimestampSigner().sign(user[0].username).split(":",maxsplit=1)[1])
+				return HttpResponseRedirect('/main/login?message=l_fp')
+		return HttpResponseRedirect('/main/login?message=l_fpfail')
             
             
 #form for finding tutors
 def retrievePw(request):
 	if request.method=='GET':
-		return render(request,'mainApp/retrievePw.html')
+		return render(request,'mainApp/retrievePw.html',{'message':message_dict[request.GET['message']]} if 'message' in request.GET and request.GET['message'] in message_dict else None)
 	elif request.method=='POST':
 		token=request.GET["token"]
 		if(request.POST["password"]==request.POST["password1"]):
@@ -83,8 +103,9 @@ def retrievePw(request):
 				u=User.objects.get(username=request.POST["username"])
 				u.set_password(request.POST["password1"])
 				u.save()
+				return HttpResponseRedirect('/main/login?message=l_reset')
 			except:
-				return HttpResponseRedirect('/main/login')			
+				return HttpResponseRedirect('/main/retrievePw?message=rp_fail&token={}'.format(token))			
 		else:
-			return HttpResponseRedirect('/main/login')
+			return HttpResponseRedirect('/main/login?message=rp_fail&token={}'.format(token))
 	

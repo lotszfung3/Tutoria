@@ -2,13 +2,18 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from datetime import datetime,timezone
 
 # Create your models here.
 class SubjectCode(models.Model):
 	subject_code=models.CharField(max_length=8)
+	@classmethod
+	def getCodeList(cls):
+		return SubjectCode.objects.all().values("subject_code")
+		
 	def __str__ (self):
 		return self.subject_code
-
+	
 class Student(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	phoneNumber=models.CharField(max_length=10)
@@ -39,13 +44,15 @@ class Tutor(models.Model):
 	avg_review=models.IntegerField(default=-1)
 	#schduel: tutor.schedule
 	@classmethod
-	def create(cls, user,phone,introduction,hourly_rate,subject_code,tag,type):
+	def create(cls, user,phone,introduction,hourly_rate,subject_code,tag,atype,imagePath,uni):
 		tutor = cls(user=user)
 		tutor.phoneNumber=phone
 		tutor.introduction=introduction
 		tutor.hourly_rate=hourly_rate
 		tutor.subject_tag=tag
-		if(type=='c'):
+		tutor.photo_url=imagePath
+		tutor.university=uni
+		if(atype=='c'):
 			tutor.tutor_type="Contract"
 		tutor.save()
 		if(isinstance(subject_code,list)):
@@ -55,6 +62,15 @@ class Tutor(models.Model):
 			tutor.teach_course_code.add(SubjectCode.objects.get(subject_code=subject_code))
         # do something with the book
 		return tutor
+	def getAvgReview(self):
+		if self.review_set.count()<3:
+			return -1
+		tempInt=0
+		for i in self.Review:
+			tempInt+=i.stars
+		return tempInt/self.review_set.count()
+			
+		
 	def __str__ (self):
 		return self.user.first_name	
 
@@ -109,6 +125,8 @@ class Coupon(models.Model):
 	expiry_date=models.DateTimeField('expiry date')
 	def __str__ (self):
 		return self.coupon_code
+	def isExpired(self):
+		return this.expiry_date<datetime.now(timezone.utc)
 #trigger when user created
 #user ->student (and/or) tutor 
 #tutor ->schedule
