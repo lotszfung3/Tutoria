@@ -17,5 +17,6 @@ urlpatterns = [
 	url(r'^login$',views_account.login_h,name='login'),
   	url(r'^logout$',views_account.logout_h,name='logout'),
 	url(r'^forgetPw$',views_account.forgetPw,name='forgetPw'),
-	url(r'^retrievePw$',views_account.retrievePw,name='retrievePw')
+	url(r'^retrievePw$',views_account.retrievePw,name='retrievePw'),
+    url(r'^manageWallet$',views_account.manageWallet,name='manageWallet')
 ]

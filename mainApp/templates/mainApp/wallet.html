@@ -1,0 +1,40 @@
+{% extends "mainApp/base.html" %}
+
+{% block title %}Managing wallet{% endblock %}
+
+ 
+{% block content %}
+<div class="ui middle aligned center aligned grid">
+	
+  <div class="column">
+    <h2 class="ui teal header segment">
+      <div class="content">
+        Amount in your wallet<br>
+      </div>
+      <div id="amount">
+${{request.user.student.amount}}
+      </div>
+    </h2>
+
+    
+
+    <div class="ui button message" id="addVal">
+     Desposit $100 to your account
+    </div>
+	<div class="ui button message" id="dedVal">
+	Withdraw $100 from your account
+    </div>
+  </div>
+</div>
+<script>
+  $("#addVal").click(function(){
+    $.ajax({url:"./manageWallet?action=add",method:"POST"}).done(function(a){
+      $("#amount").html("$"+a)});
+  });
+ $("#dedVal").click(function(){
+    $.ajax({url:"./manageWallet?action=ded",method:"POST"}).done(function(a){
+      $("#amount").html("$"+a)});
+  });
+</script>
+{% endblock %}
+

@@ -42,8 +42,12 @@ def emailGateway(email_type,recipients,info):#recipent:[student name, tutor name
     elif(email_type=='resetPw'):
         print(email_format.format("Reset your password",recipients,"You can use the following link to reset your password:\n{}".format(info)))
 def paymentGateway(user,amount):
-    user.amount+=amount
-    user.save()
-    emailGateway("wallet_handle",user.name,{"amount":amount})
+    tempAmount=user.student.amount+amount
+    user.student.amount=tempAmount
+    user.student.save()
+    if(user.tutor):
+        user.tutor.amount=tempAmount
+        user.tutor.save()
+    return tempAmount
 def test():
 	print("asd")

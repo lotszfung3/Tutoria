@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.signing import TimestampSigner
-from .utils import uploadImage,emailGateway
+from .utils import uploadImage,emailGateway,paymentGateway
 from django.contrib.auth.password_validation import validate_password
 
 message_dict={"l_logout":"You have logged out.","l_fail":"Your username or your password doesn't match",
@@ -67,10 +67,11 @@ def register(request):
 		user.student.phoneNumber=request.POST['phone']
 		user.student.save()
 		#if he want to be a tutor
-		atype=request.POST['type'] if 'type' in request.POST else 'p'
-		tut=Tutor.create(user=user,phone=request.POST['phone'],introduction=request.POST['description'],hourly_rate=request.POST['hourlyRate'],uni=request.POST['uni'],
+		if('role' in request.POST and request.POST['role']=='on'):
+			atype=request.POST['type'] if 'type' in request.POST else 'p'
+			tut=Tutor.create(user=user,phone=request.POST['phone'],introduction=request.POST['description'],hourly_rate=request.POST['hourlyRate'],uni=request.POST['uni'],
 							 subject_code=request.POST.getlist('subject'),tag=request.POST['tag'],atype=atype,imagePath='profilepic/{}.jpg'.format(str(user.id)))
-		tut.save()
+			tut.save()
 		return HttpResponseRedirect('/main/login?message=l_register')
 def forgetPw(request):
 	if request.method=='GET':
@@ -108,4 +109,12 @@ def retrievePw(request):
 				return HttpResponseRedirect('/main/retrievePw?message=rp_fail&token={}'.format(token))			
 		else:
 			return HttpResponseRedirect('/main/login?message=rp_fail&token={}'.format(token))
-	
+@csrf_exempt
+@login_required
+def manageWallet(request):
+	if(request.method=='GET'):
+		return render(request,'mainApp/wallet.html')
+	else:
+		mes=paymentGateway(request.user,100 if request.GET['action']=='add' else -100)
+		return HttpResponse(mes)
+		
