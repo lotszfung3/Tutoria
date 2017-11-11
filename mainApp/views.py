@@ -6,6 +6,8 @@ from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from .utils import getSlotIdfromDateTime
+from django.db.models import Q
+from django.contrib import messages
 @login_required
 def findTutors(request):
 	return render(request,'mainApp/findTutors.html',{'std':request.user.student})
@@ -113,7 +115,7 @@ def viewUpcomingSessions(request):
 	this_student = request.user.student
 	# retrieve list of sessions associated with the student
 	# currently only retrieves sessions with (state='normal')
-	student_sessions = this_student.session_set.filter(state='normal')
+	student_sessions = this_student.session_set.filter(state='soon') | this_student.session_set.filter(state='normal')
 	# return list of sessions
 	context = {'student_sessions': student_sessions, 'this_student': this_student,}
 	return render(request,'mainApp/viewUpcomingSessions.html',context)
@@ -135,11 +137,13 @@ def cancelSession(request, session_ID):
 @login_required
 def sessionCancelled(request, session_ID):
 	toCancel = request.GET['YesNoCancel']
+	this_session = Session.objects.get(id=session_ID)
 	if (toCancel=='N'):
 		return HttpResponseRedirect('/main/upcomingSessions')
+	elif (this_session.state=='soon'):
+		messages.info(request, 'You cannot cancel sessions that are starting so soon!')
+		return HttpResponseRedirect('/main/upcomingSessions')
 	else:
-        #change session info
-		this_session = Session.objects.get(id=session_ID)
 		this_session.state='cancelled'
 		this_session.save()
         #change tutor schedule
