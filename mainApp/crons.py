@@ -5,7 +5,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import datetime,timezone, timedelta
 from django_cron import CronJobBase, Schedule
-from django.core.mail import send_mail
 
 class Update_Session_States(CronJobBase):
     RUN_EVERY_MINS = 30
@@ -19,14 +18,7 @@ class Update_Session_States(CronJobBase):
     		if x.state=='normal':
     			new_lst.append(x)
     	return new_lst
-    def notify_tutor(tutor, session):
-    	send_mail(
-    		'Your MyTutors payment has been received!',
-    		'Here is the message.',
-    		'from@example.com',
-    		['to@example.com'],
-    		fail_silently=False,
-		)
+
     def do(self):
     	normal_sessions = get_normal_sessions(all_sessions)
     	for session in normal_sessions:
@@ -34,7 +26,6 @@ class Update_Session_States(CronJobBase):
     			session.state='ended'
     			#TODO: commission system for mytutors
     			session.session_tutor.amount = session.session_tutor.amount + session.session_tutor.hourly_rate
-    			notify_tutor(session.session_turor, session)
     			session.session_tutor.save()
     			session.save()
     		elif (session.session_datetime - timedelta(hours=24)) > datetime.now(timezone('UTC')):
