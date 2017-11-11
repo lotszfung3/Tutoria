@@ -77,19 +77,15 @@ class Tutor(models.Model):
 class Session(models.Model):
 	coupon_used=models.BooleanField()
 	session_datetime=models.DateTimeField()
-	state=models.CharField(max_length=10,default='normal')#cancelled/normal/ended/in-progress
+	state=models.CharField(max_length=10,default='normal')#cancelled/normal/ended/soon
+	# if session state = 'soon' then the session is less than 24 hours away and cannot be cancelled
 	session_student=models.ForeignKey(Student)
 	session_tutor=models.ForeignKey(Tutor)
 
-	@classmethod
 	# returns true if current datetime is greater than session datetime + 1 hour
-	def is_complete(self):
-		if this.state == "cancelled":
-			return False
-		else:
-			return (this.session_datetime + timedelta(hours=1)) <  datetime.now(timezone('UTC'))
 	def __str__ (self):
 		return str(self.id)
+
 	
 #record twice for students wallet and tutors wallet
 class Transaction(models.Model):
@@ -98,13 +94,6 @@ class Transaction(models.Model):
 	involved_session=models.OneToOneField(Session)
 	payment_student=models.ForeignKey(Student)
 	payment_tutor=models.ForeignKey(Tutor)
-	@classmethod
-	# if associated session is complete, add tutor's hourly rate to their wallet
-	def fulfill_tutor_payment(self):
-		if (self.involved_session.is_complete() && self.involved_session.state=="in-progress"):
-			payment_tutor.amount = payment_tutor.amount + payment_tutor.hourly_rate
-			self.involved_session.state = "ended"
-			self.involved_session.save()
 	def __str__ (self):
 		return str(self.id)
 
