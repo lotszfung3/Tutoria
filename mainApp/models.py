@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from datetime import datetime,timezone
+from datetime import datetime,timezone, timedelta
 
 # Create your models here.
 class SubjectCode(models.Model):
@@ -80,6 +80,14 @@ class Session(models.Model):
 	state=models.CharField(max_length=10,default='normal')#cancelled/normal/ended/in-progress
 	session_student=models.ForeignKey(Student)
 	session_tutor=models.ForeignKey(Tutor)
+
+	@classmethod
+	# returns true if current datetime is greater than session datetime + 1 hour
+	def is_complete(self):
+		if this.state == "cancelled":
+			return False
+		else:
+			return (this.session_datetime + timedelta(hours=1)) <  datetime.now(timezone('UTC'))
 	def __str__ (self):
 		return str(self.id)
 	
@@ -90,6 +98,13 @@ class Transaction(models.Model):
 	involved_session=models.OneToOneField(Session)
 	payment_student=models.ForeignKey(Student)
 	payment_tutor=models.ForeignKey(Tutor)
+	@classmethod
+	# if associated session is complete, add tutor's hourly rate to their wallet
+	def fulfill_tutor_payment(self):
+		if (self.involved_session.is_complete() && self.involved_session.state=="in-progress"):
+			payment_tutor.amount = payment_tutor.amount + payment_tutor.hourly_rate
+			self.involved_session.state = "ended"
+			self.involved_session.save()
 	def __str__ (self):
 		return str(self.id)
 
