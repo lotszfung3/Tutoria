@@ -156,7 +156,7 @@ def sessionCancelled(request, session_ID):
 		temp_sch.available_timeslot=temp_sch.available_timeslot[:temp_slot]+"a"+temp_sch.available_timeslot[temp_slot+1:]
 		temp_sch.save()
 		#add value back to student
-		this_session.session_student.amount+=temp_tutor.hourly_rate
+		this_session.session_student.amount+=temp_tutor.getStudentRate()
 		this_session.session_student.save()
 		return render(request,'mainApp/sessionCancelled.html')
 
