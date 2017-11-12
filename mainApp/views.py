@@ -74,11 +74,13 @@ def detailedProfile(request):
 @login_required
 def confirmPayment(request):
 	tutor = Tutor.objects.get(id=request.GET['tutorsID'])
+	student_rate = tutor.getStudentRate()
 	schedule = Schedule.objects.get(owned_tutor=tutor)
 	slot = int(request.GET['slot'])
 	student = Student.objects.get(id=request.user.student.id)
 	if(str(schedule.available_timeslot)[slot]=='a'):
-		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(date.today()), 'student': student})
+		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(date.today()), 'student': student, 
+			'student_rate': student_rate})
 	else:
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor})
 
@@ -98,7 +100,7 @@ def bookSession(request):
 		else:
 			time_str = str(int((time-1)/2+9)) + ":30:00"
 	student = Student.objects.get(id=request.user.student.id)
-	student.amount = student.amount - tutor.hourly_rate
+	student.amount = student.amount - tutor.getStudentRate()
 	student.save()
 	if(str(schedule.available_timeslot)[slot]=='a'):
 		schedule.available_timeslot = schedule.available_timeslot[:slot] + "b" + schedule.available_timeslot[(slot+1):]
