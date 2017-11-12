@@ -24,6 +24,8 @@ class Update_Session_States(CronJobBase):
 				session.session_tutor.amount = session.session_tutor.amount + session.session_tutor.hourly_rate
 				session.session_tutor.save()
 				session.save()
+				#TODO: send email to student asking to submit a review
+				emailGateway('submit_review', [session.session_student, session.session_tutor], session)
 			elif (session.session_datetime - timedelta(hours=24)) < now:
 				session.state='soon'
 				session.save()
@@ -42,6 +44,5 @@ class Update_Transaction_States(CronJobBase):
 			if(transaction.involved_session.state=='ended'):
 				this_session = transaction.involved_session
 				transaction.state='completed'
-				#TODO: send email notification to Tutor and Student that they have received payment
 				emailGateway('transaction_received', [this_session.session_student, this_session.session_tutor], this_session)
 				transaction.save()
