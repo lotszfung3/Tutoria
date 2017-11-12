@@ -42,7 +42,7 @@ def emailGateway(email_type,recipients,info):#recipent:[student name, tutor name
     elif(email_type=='resetPw'):
         print(email_format.format(" Reset your password",recipients,"You can use the following link to reset your password:\n{}".format(info)))
     elif(email_type=='submit_review'):
-        print(email_format.format(" Please submit a review for your recent session.", recipients[0], "Thank you for using Tutoria. You can submit a review for your recent session with {} by clicking here:\n".format(info.session_tutor)))
+        print(email_format.format(" Session Complete.", recipients[0], "Thank you for using Tutoria. You can submit a review for your recent session with {} by clicking here:\n".format(info.session_tutor)))
 
 def paymentGateway(user,amount):
     tempAmount=user.student.amount+amount
