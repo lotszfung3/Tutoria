@@ -34,15 +34,14 @@ class Update_Transaction_States(CronJobBase):
 	code = 'Tutoria.Update_Transaction_States_cron'
 	def do(self):
 		all_transactions = Transaction.objects.all()
-#		pending_transactions = []
-#		for x in all_transactions:
-#			if x.state=='pending':
-#				pending_transactions.append(x)
-		pending_transactions = all_transactions.filter(state='pending')
+		pending_transactions = []
+		for x in all_transactions:
+			if x.state=='pending':
+				pending_transactions.append(x)
 		for transaction in pending_transactions:
 			if(transaction.involved_session.state=='ended'):
 				this_session = transaction.involved_session
 				transaction.state='completed'
 				#TODO: send email notification to Tutor and Student that they have received payment
-				emailGateway('transaction_received', [this_session.session_student, this_session.session_tutor])
+				emailGateway('transaction_received', [this_session.session_student, this_session.session_tutor], this_session)
 				transaction.save()

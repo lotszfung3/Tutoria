@@ -82,8 +82,6 @@ class Session(models.Model):
 	# if session state = 'soon' then the session is less than 24 hours away and cannot be cancelled
 	session_student=models.ForeignKey(Student)
 	session_tutor=models.ForeignKey(Tutor)
-
-	# returns true if current datetime is greater than session datetime + 1 hour
 	def __str__ (self):
 		return str(self.id)
 
