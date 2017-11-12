@@ -41,6 +41,7 @@ def emailGateway(email_type,recipients,info):#recipent:[student name, tutor name
         print(email_format.format(" Wallet transaction is done",recipients,"The amount {} has been {} your wallet".format(abs(info.amount),"added to" if info.amount>0 else "deducted from")))
     elif(email_type=='resetPw'):
         print(email_format.format("Reset your password",recipients,"You can use the following link to reset your password:\n{}".format(info)))
+
 def paymentGateway(user,amount):
     tempAmount=user.student.amount+amount
     user.student.amount=tempAmount
