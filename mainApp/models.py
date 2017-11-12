@@ -70,7 +70,8 @@ class Tutor(models.Model):
 			tempInt+=i.stars
 		return tempInt/self.review_set.count()
 			
-		
+	def getStudentRate(self):
+		return int(((.05 * self.hourly_rate) + self.hourly_rate))
 	def __str__ (self):
 		return self.user.first_name	
 
