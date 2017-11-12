@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from datetime import datetime,timezone
+from datetime import datetime,timezone, timedelta
 
 # Create your models here.
 class SubjectCode(models.Model):
@@ -70,18 +70,21 @@ class Tutor(models.Model):
 			tempInt+=i.stars
 		return tempInt/self.review_set.count()
 			
-		
+	def getStudentRate(self):
+		return int(((.05 * self.hourly_rate) + self.hourly_rate))
 	def __str__ (self):
 		return self.user.first_name	
 
 class Session(models.Model):
 	coupon_used=models.BooleanField()
 	session_datetime=models.DateTimeField()
-	state=models.CharField(max_length=10,default='normal')#cancelled/normal/ended/in-progress
+	state=models.CharField(max_length=10,default='normal')#cancelled/normal/ended/soon
+	# if session state = 'soon' then the session is less than 24 hours away and cannot be cancelled
 	session_student=models.ForeignKey(Student)
 	session_tutor=models.ForeignKey(Tutor)
 	def __str__ (self):
 		return str(self.id)
+
 	
 #record twice for students wallet and tutors wallet
 class Transaction(models.Model):
