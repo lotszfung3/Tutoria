@@ -163,18 +163,18 @@ def sessionCancelled(request, session_ID):
 		return render(request,'mainApp/cancel/sessionCancelled.html')
 
 @login_required
-def submitReview(request, session_ID):
-	this_session = Session.objects.get(id=session_ID)
-	this_review = this_session.session_review
-	this_course = this_session.course_code
-	session_time = this_session.session_datetime
-	context = {'this_session': this_session, 'session_tutor': this_session.session_tutor, 'session_student': this_session.session_student, 'this_review': this_review, 'session_time': session_time,}
-	return render(request,'mainApp/review/submitReview',context)
+def submitReviews(request):
+	this_student = request.user.student
+	# retrieve list of sessions associated with the student
+	# currently only retrieves sessions with (state='normal')
+	student_sessions = this_student.session_set.filter(state='ended')
+	# return list of sessions
+	context = {'student_sessions': student_sessions, 'this_student': this_student,}
+	return render(request,'mainApp/review/submitReviews.html',context)
 
 @login_required
 def reviewSubmitted(request, session_ID):
 	rating = request.GET['rating']
 	this_session = Session.objects.get(id=session_ID)
-	this_review = this_session.session_review
-	this_review.state="completed"
+
 	return render(request,'mainApp/review/reviewSubmitted')
