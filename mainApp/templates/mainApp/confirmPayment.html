@@ -15,14 +15,11 @@
 					<p id="time"> Time: </p>
 					<p> Required Amount: ${{student_rate}}</p>
 					<p> Remaining Amount in Wallet: ${{student.amount}}</p>
-					<form class="ui form" action="bookSession" method="get">
-						<div class="field">
-							Coupon Code (optional): <input type="text" name="coupon" placeholder="Coupon Code">
-						</div>
+					<form class="ui form" action="{{action}}" method="{{method}}">{% csrf_token %}
 						<input type="hidden" name="tutorsID" value="{{tutor.id}}">
 						<input type="hidden" name="slot" value="{{slot}}">
 						<p id="input"></p>
-						<button class="ui button" type="submit">Submit</button>
+						{{button|safe}}
 						</form>
 				</td>
 			</tr>

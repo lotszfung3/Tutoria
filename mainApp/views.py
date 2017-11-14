@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from .utils import getSlotIdfromDateTime
 from django.db.models import Q
 from django.contrib import messages
+from decimal import *
 @login_required
 def findTutors(request):
 	return render(request,'mainApp/findTutors.html',{'std':request.user.student})
@@ -34,9 +35,10 @@ def tutorsList(request):
 		hprice_i = int(hprice)
 		tutor_query.append(Tutor.objects.filter(hourly_rate__gte=hprice_i))
 
-	if(request.GET['type']=='c'):
+	t_type = request.GET['type']
+	if(t_type=='c'):
 		tutor_query.append(Tutor.objects.filter(tutor_type='Contract'))
-	elif(request.GET['type']=='p'):
+	elif(t_type=='p'):
 		tutor_query.append(Tutor.objects.filter(tutor_type='Private'))
 
 	tutor_query.append(Tutor.objects.filter(activated=True))
@@ -46,29 +48,66 @@ def tutorsList(request):
 	for i in range(len(tutor_query)):
 		tutor_all = tutor_all.intersection(tutor_query[i])	
 
+	sort = request.GET['sort']
+	if(sort=='AscP'):
+		tutor_all = tutor_all.order_by('hourly_rate')
+	elif(sort=='DscP'):
+		tutor_all = tutor_all.order_by('-hourly_rate')
+	elif(sort=='AscS'):
+		tutor_all = tutor_all.order_by('avg_review')
+	elif(sort=='DscS'):
+		tutor_all = tutor_all.order_by('-avg_review')
+
 	tutor_list = []
 	course = request.GET['course']
 	if(course!=''):
 		for tutor in tutor_all:
 			course_code_query = tutor.teach_course_code.all()
 			for course_code in course_code_query:
-				if(course_code.subject_code==course):
+				if(course_code.subject_code==course and crit):
 					tutor_list.append(tutor)
 					break;
 	else:
-		for tutor in tutor_all:
-			tutor_list.append(tutor)
+		tutor_list = list(tutor_all)
+
+	if 'crit' in request.GET:
+		tutor_list = list(tutor for tutor in tutor_list if availableInSevenDays(tutor))
 
 	if(len(tutor_list)==0):
 		for tutor in Tutor.objects.filter(activated=True):
 			tutor_list.append(tutor)
 
-	return render(request,'mainApp/tutorList.html',{'tutor_list': tutor_list, 'range5': range(5)})
+	url = './tutorsList?university=' + uni + '&course=' + course + '&tag=' + tag + '&lprice=' + lprice + '&hprice=' + hprice + '&type=' + t_type + '&sort='
+
+	return render(request,'mainApp/tutorList.html',{'tutor_list': tutorListToHtml(tutor_list), 'range5': range(5), 'url': url})
+
+
 @login_required
 def detailedProfile(request):
 	tutor = Tutor.objects.get(id=request.GET['tutorsID'])
 	schedule = Schedule.objects.get(owned_tutor=tutor)
-	return render(request,'mainApp/detailedProfile.html',{'tutor': tutor, 'date': str(date.today()), 'schedule': str(schedule.available_timeslot)})
+	reviews = Review.objects.filter(for_tutor=tutor)
+	reviews_html = '';
+	if(reviews.count()!=0):
+		for review in reviews:
+			reviews_html = reviews_html + '<tr>'
+			reviews_html = reviews_html + '<td class="twelve wide">'
+			reviews_html = reviews_html + '<p>' + review.comment + '</p>'
+			reviews_html = reviews_html + '</td>'
+			reviews_html = reviews_html + '<td class="four wide">'
+			reviews_html = reviews_html + '<div align="right">'
+			for i in range(5):
+				if(i<review.stars):
+					reviews_html = reviews_html + '★'
+				else:
+					reviews_html = reviews_html + '☆'
+			reviews_html = reviews_html + '</div>'
+			reviews_html = reviews_html + '</td>'
+			reviews_html = reviews_html + '</tr>'
+	else:
+		reviews_html = '<tr><td>No reviews available yet.</td></tr>'
+
+	return render(request,'mainApp/detailedProfile.html',{'tutor': tutor, 'tutor_info': tutorInformationToHtml(tutor), 'date': str(date.today()), 'schedule': str(schedule.available_timeslot), 'reviews_html': reviews_html, 'range5': range(5)})
 
 #post request for payment confirmation
 @login_required
@@ -78,20 +117,34 @@ def confirmPayment(request):
 	schedule = Schedule.objects.get(owned_tutor=tutor)
 	slot = int(request.GET['slot'])
 	student = Student.objects.get(id=request.user.student.id)
-	if(str(schedule.available_timeslot)[slot]=='a'):
+
+	if(student.amount < tutor.hourly_rate*Decimal('1.05')):
+		message = '<div class="field">'
+		message = message + 'Coupon Code (optional): <input type="text" name="coupon" placeholder="Coupon Code">'
+		message = message + '</div>'
+		message = message +'Your wallet does not have sufficient amount!<button class="ui button" type="submit">Manage Wallet</button>'
 		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(date.today()), 'student': student, 
-			'student_rate': student_rate})
+			'student_rate': student_rate, 'action': 'manageWallet', 'button': message, 'method': 'get'})
+
+	if(str(schedule.available_timeslot)[slot]=='a'):
+		submit = '<div class="field">'
+		submit = submit + 'Coupon Code (optional): <input type="text" name="coupon" placeholder="Coupon Code">'
+		submit = submit + '</div>'
+		submit = submit + '<button class="ui button" type="submit">Submit</button>'
+		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(date.today()), 'student': student, 
+			'student_rate': student_rate, 'action': 'bookSession', 'button': submit, 'message': '', 'method': 'post'})
 	else:
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor})
 
 #accept request and create session
 @login_required
 def bookSession(request):
-	tutor = Tutor.objects.get(id=request.GET['tutorsID'])
+	#getting the information
+	tutor = Tutor.objects.get(id=request.POST['tutorsID'])
 	schedule = Schedule.objects.get(owned_tutor=tutor)
-	time = int(request.GET['time'])
-	date = request.GET['date']
-	slot = int(request.GET['slot'])
+	time = int(request.POST['time'])
+	date = request.POST['date']
+	slot = int(request.POST['slot'])
 	if(tutor.tutor_type=="Private"):
 		time_str = str(time+9) + ":00:00"
 	else:
@@ -99,14 +152,25 @@ def bookSession(request):
 			time_str = str(int(time/2+9)) + ":00:00"
 		else:
 			time_str = str(int((time-1)/2+9)) + ":30:00"
-	student = Student.objects.get(id=request.user.student.id)
-	student.amount = student.amount - tutor.getStudentRate()
-	student.save()
+
 	if(str(schedule.available_timeslot)[slot]=='a'):
+		#saving the wallet amount
+		student = Student.objects.get(id=request.user.student.id)
+		student.amount = student.amount - tutor.getStudentRate()
+		student.save()
+
+		#saving the changed schedule and create session
 		schedule.available_timeslot = schedule.available_timeslot[:slot] + "b" + schedule.available_timeslot[(slot+1):]
 		schedule.save()
 		session = Session(session_tutor=tutor, session_datetime=date+" "+time_str, session_student=student, coupon_used=False)
 		session.save()
+
+		#saving the transaction record
+		transaction = Transaction(amount=tutor.amount*Decimal('1.05'), state="completed", involved_session=session, payment_student=student, payment_tutor=tutor)
+		transaction.save()
+
+	else:
+		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor})
 
 	return redirect(viewUpcomingSessions)
 
@@ -162,3 +226,76 @@ def sessionCancelled(request, session_ID):
 
 
 
+
+
+#check to see if a tutor is available in the future seven days
+def availableInSevenDays(tutor):
+    schedule = Schedule.objects.get(owned_tutor=tutor)
+    sch = ''
+    if tutor.tutor_type == 'Contract':
+        sch = schedule.available_timeslot[:140]
+    elif tutor.tutor_type == 'Private':
+        sch = schedule.available_timeslot[:70]
+    else:
+        return False
+
+    for i in range(len(sch)):
+        if sch[i] == 'a':
+            return True
+
+    return False
+
+#turn tutor list into html
+def tutorListToHtml(tutor_list):
+	string = ''
+	for tutor in tutor_list:
+		string = string + '<tr><td><a href="./detailedProfile?tutorsID=' + str(tutor.id) + '"><table class="ui selectable table"><tr><td><p>'
+		string = string + 'Tutor Name: ' + tutor.user.first_name + '<br>'
+		string = string + 'University: ' + tutor.university + '<br>'
+		string = string + 'Rating: '
+		if tutor.avg_review == -1:
+			string = string + 'Not Available<br>'
+		else:
+			for i in range(5):
+				if i<tutor.avg_review :
+					string = string + '★'
+				else:
+					string = string + '☆'
+			string = string + '<br>'
+		if tutor.tutor_type == 'Contract':
+			string = string + 'Tutor Type: Contract<br>'
+		else:
+			string = string + 'Tutor Type: Private<br>'
+			string = string + 'Hourly Rate: ' + str(tutor.hourly_rate) + '<br>'
+		string = string + 'Subject Tags: ' + tutor.subject_tag
+		string = string + '</td><td class="right aligned">'
+		string = string + '<img src="/static/' + tutor.photo_url + '"/ alt="' + tutor.photo_url + '" height="100" width="100">'
+		string = string + '</td></tr></table></a></td></tr>'
+
+	return string
+
+#turn tutor information into html
+def tutorInformationToHtml(tutor):
+
+	string = ''
+
+	string = string + 'Tutor Name: ' + tutor.user.first_name + '<br>'
+	string = string + 'University: ' + tutor.university + '<br>'
+	string = string + 'Rating: '
+	if tutor.avg_review == -1:
+		string = string + 'Not Available<br>'
+	else:
+		for i in range(5):
+			if i<tutor.avg_review :
+				string = string + '★'
+			else:
+				string = string + '☆'
+		string = string + '<br>'
+	if tutor.tutor_type == 'Contract':
+		string = string + 'Tutor Type: Contract<br>'
+	else:
+		string = string + 'Tutor Type: Private<br>'
+		string = string + 'Hourly Rate: ' + str(tutor.hourly_rate) + '<br>'
+	string = string + 'Subject Tags: ' + tutor.subject_tag
+
+	return string

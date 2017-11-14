@@ -50,5 +50,6 @@ def paymentGateway(user,amount):
         user.tutor.amount=tempAmount
         user.tutor.save()
     return tempAmount
+
 def test():
 	print("asd")

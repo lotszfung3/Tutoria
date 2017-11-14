@@ -8,27 +8,19 @@
 <div class="ui centered grid">
 	<div class="ten wide column">
 <h2>Tutor List</h2>
-<table class="ui table">
-{% for tutor in tutor_list %}
-	<tr>
-		<td><a href="./detailedProfile?tutorsID={{tutor.id}}">
-			<table class="ui selectable table">
-				<tr>
-					<td>
-						<p>	Tutor Name: {{tutor.user.first_name}}<br>
-							University: {{tutor.university}}<br>
-							Rating: {% with tutor.avg_review as ave %}{% if ave < 0 %}not available{% else %}{% for i in range5 %}{% if i < ave %}★{% else	 %}☆{% endif %}{% endfor %}{% endif %}{% endwith %}<br>
-							Hourly Rate: {{tutor.hourly_rate}}</p>
-					</td>
-					<td class="right aligned">
-						<img src="{% static "" %}{{tutor.photo_url}}"/ alt="{{tutor.photo_url}}" height="100" width="100">
-					</td>
-				</tr>
-			</table>
-		</a></td>
-	</tr>
+<div align="right">
+<div class="ui simple dropdown item">
+	Sort by
+    <i class="dropdown icon"></i>
+    <div class="menu">
+    <div class="item"><a href='{{url}}AscP'>Ascending Hourly Rate</a></div>
+    <div class="item"><a href='{{url}}DscP'>Descending Hourly Rate</a></div>
+    <div class="item"><a href='{{url}}AscS'>Ascending Rating</a></div>
+    <div class="item"><a href='{{url}}DscS'>Descending Rating</a></div>
+</div></div></div>
 
-{% endfor %}
+<table class="ui table">
+	{{tutor_list|safe}}
 </table>
 	</div>
 </div>
