@@ -96,11 +96,6 @@ class Transaction(models.Model):
 	def __str__ (self):
 		return str(self.id)
 
-
-
-
-
-
 class Schedule(models.Model):
 	owned_tutor=models.OneToOneField(Tutor)
 	start_date=models.DateField(auto_now_add=True)
@@ -120,6 +115,7 @@ class Review(models.Model):
 	stars=models.IntegerField(default=3)
 	comment=models.CharField(max_length=200)
 	written_for=models.OneToOneField(Tutor)
+	involved_session=models.OneToOneField(Session)
 	written_date=models.DateTimeField(auto_now_add=True)
 	course_code=models.CharField(max_length=10)
 	state=models.CharField(max_length=10,default='empty')#completed

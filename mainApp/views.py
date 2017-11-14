@@ -144,7 +144,7 @@ def sessionCancelled(request, session_ID):
 	this_session = Session.objects.get(id=session_ID)
 	if (toCancel=='N'):
 		return HttpResponseRedirect('/main/upcomingSessions')
-	elif (this_session.state=='soon'):
+	elif (this_session.state=='locked'):
 		messages.info(request, 'You cannot cancel sessions that are starting so soon!')
 		return HttpResponseRedirect('/main/upcomingSessions')
 	else:
@@ -164,18 +164,46 @@ def sessionCancelled(request, session_ID):
 
 @login_required
 def submitReviews(request, session_ID):
-	this_student = request.user.student
-	# retrieve list of sessions associated with the student
-	# currently only retrieves sessions with (state='normal')
-	student_sessions = this_student.session_set.filter(state='ended')
+	this_session = Session.objects.get(id=session_ID)
+	
+	if this_session.review_state=="empty":
+		context = {'student_sessions': student_sessions, 'this_student': this_student,}
+		return render(request,'mainApp/review/submitReviews.html',context)
+
+	else 
+		messages.info(request, 'You already submitted a review for this Session!')
+		return HttpResponseRedirect('/main/upcomingSessions')
+
 
 	# return list of ended sessions
-	context = {'student_sessions': student_sessions, 'this_student': this_student,}
-	return render(request,'mainApp/review/submitReviews.html',context)
 
 @login_required
 def reviewSubmitted(request, session_ID):
-	rating = request.GET['rating']
 	this_session = Session.objects.get(id=session_ID)
 
+	#get review info
+	rating = request.GET['rating']
+	comment = request.GET['comment']
+	tut = this_session.session_tutor
+
+	#create new review
+	new_review= Review(stars=int(rating), comment = comment, written_for=tut, involved_session=this_session, course_code="COMP3297", state="completed")
+	new_review.save()
+
+	this_session.review_state="complete"
+	this_session.save()
+
 	return render(request,'mainApp/review/reviewSubmitted')
+
+
+
+
+
+
+
+
+
+
+
+
+
