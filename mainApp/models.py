@@ -82,6 +82,7 @@ class Session(models.Model):
 	# if session state = 'soon' then the session is less than 24 hours away and cannot be cancelled
 	session_student=models.ForeignKey(Student)
 	session_tutor=models.ForeignKey(Tutor)
+	session_review=models.ForeignKey(Review)
 	def __str__ (self):
 		return str(self.id)
 
@@ -120,6 +121,7 @@ class Review(models.Model):
 	for_tutor=models.ForeignKey(Tutor)
 	written_date=models.DateTimeField(auto_now_add=True)
 	course_code=models.CharField(max_length=10)
+	state=models.CharField(max_length=10,default='empty')#completed
 	def __str__ (self):
 		return self.id
 

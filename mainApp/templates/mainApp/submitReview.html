@@ -1,0 +1,26 @@
+{% extends "mainApp/base.html" %}
+
+{% block title %}Submit Review{% endblock %}
+
+{% block content %}
+<center>
+	<h3>Session ID: <p>{{this_session}}</p></h3>
+	<h3>Tutor: <p>{{session_tutor}}</p></h3>
+	<h3>Date : <p>{{session_time}}</p></h3>
+	<form class="ui form" action="/main/{{this_session}}/reviewSubmitted" method="get">
+		<div class="field">
+    		<label>Please rate the quality of your session on a scale from 0-5: </label>
+    		<select name="rating">
+  				<option value="0">0</option>
+  				<option value="1">1</option>
+  				<option value="2">2</option>
+  				<option value="3">3</option>
+  				<option value="4">4</option>
+  				<option value="5">5</option>
+			</select>
+		</div>
+		<div class=""
+		<button class="ui button" type="submit">Submit</button>
+	</form>
+</center>
+{% endblock %}

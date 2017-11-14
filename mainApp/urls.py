@@ -19,4 +19,6 @@ urlpatterns = [
 	url(r'^forgetPw$',views_account.forgetPw,name='forgetPw'),
 	url(r'^retrievePw$',views_account.retrievePw,name='retrievePw'),
     url(r'^manageWallet$',views_account.manageWallet,name='manageWallet')
+    url(r'^/submitReview/(?P<session_ID>\d+)$',views.submitReview,name='submitReview'),
+    url(r'^(?P<session_ID>\d+)/reviewSubmitted',views.reviewSubmitted,name='reviewSubmitted'),
 ]

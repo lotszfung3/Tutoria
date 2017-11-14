@@ -160,5 +160,19 @@ def sessionCancelled(request, session_ID):
 		this_session.session_student.save()
 		return render(request,'mainApp/sessionCancelled.html')
 
+@login_required
+def submitReview(request, session_ID):
+	this_session = Session.objects.get(id=session_ID)
+	this_review = this_session.session_review
+	this_course = this_session.course_code
+	session_time = this_session.session_datetime
+	context = {'this_session': this_session, 'session_tutor': this_session.session_tutor, 'session_student': this_session.session_student, 'this_review': this_review, 'session_time': session_time,}
+	return render(request,'mainApp/submitReview.html',context)
 
-
+@login_required
+def reviewSubmitted(request, session_ID):
+	rating = request.GET['rating']
+	this_session = Session.objects.get(id=session_ID)
+	this_review = this_session.session_review
+	this_review.state="completed"
+	return render(request,'mainApp/reviewSubmitted')

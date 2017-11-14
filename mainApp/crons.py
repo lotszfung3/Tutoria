@@ -24,6 +24,7 @@ class Update_Session_States(CronJobBase):
 				session.session_tutor.amount = session.session_tutor.amount + session.session_tutor.hourly_rate
 				session.session_tutor.save()
 				session.save()
+				emailGateway('session_end', [session.session_student,session.session_tutor], session)
 			elif (session.session_datetime - timedelta(hours=24)) < now:
 				session.state='soon'
 				session.save()
