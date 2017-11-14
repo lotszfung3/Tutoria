@@ -1,0 +1,19 @@
+{% extends "mainApp/base.html" %}
+
+{% block title %}findTutors{% endblock %}
+
+{% block content %}
+
+{% load static %}
+
+<h2>{{this_user}}'s Profile (Student)</h2>
+
+<img src="{% static "" %}{{this_user.photo_url}}"/ alt="{{this_user.photo_url}}" height="150" width="150">
+
+
+<p>     Name: {{this_user}}<br>
+        User Name: {{this_user.user.username}}<br>
+        Phone Number: {{this_user.phoneNumber}}<br>
+        Email: {{this_user.user.email}}<br>
+</p>
+{% endblock %}

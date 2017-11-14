@@ -1,0 +1,30 @@
+{% extends "mainApp/base.html" %}
+
+{% block title %}findTutors{% endblock %}
+
+{% block content %}
+<div class="ui segment">
+<form class="ui form" action="editAccountDetail" method="post" enctype="multipart/form-data">{% csrf_token %}
+    <div class="field">
+        <label>Name</label>
+        <input type="text" name="Name" placeholder="Name" value={{this_user.user.username}}>
+    </div>
+    <div class="field">
+        <label>Phone Number</label>
+        <input type="text" name="phoneNumber" placeholder="Phone Number" value={{this_user.phoneNumber}}>
+    </div>
+    <div class="field">
+        <label>Email</label>
+        <input type="text" name="email" placeholder="email" value={{this_user.user.email}}>
+    </div>
+    <div class="field">
+        <label>Select image to upload:</label>
+        <input type="file" name="newImage" accept="image/*" required/>
+        <!--<input type="file" name="fileToUpload" id="fileToUpload" accept="image/*"><p></p>
+        <input type="submit" value="Upload Image" name="submit">-->
+    </div>
+    <p></p>
+    <button class="ui button" type="submit">Submit</button>
+</form>
+</div>
+{% endblock %}

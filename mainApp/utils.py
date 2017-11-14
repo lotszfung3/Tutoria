@@ -46,7 +46,7 @@ def paymentGateway(user,amount):
     tempAmount=user.student.amount+amount
     user.student.amount=tempAmount
     user.student.save()
-    if(user.tutor):
+    if(hasattr(user,'tutor')):
         user.tutor.amount=tempAmount
         user.tutor.save()
     return tempAmount

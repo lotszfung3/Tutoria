@@ -116,6 +116,7 @@ class Schedule(models.Model):
 class Review(models.Model):
 	stars=models.IntegerField(default=3)
 	comment=models.CharField(max_length=200)
+	involved_session=models.OneToOneField(Session)
 	written_student=models.ForeignKey(Student)
 	for_tutor=models.ForeignKey(Tutor)
 	written_date=models.DateTimeField(auto_now_add=True)

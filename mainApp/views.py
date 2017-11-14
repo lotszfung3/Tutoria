@@ -5,12 +5,36 @@ from datetime import date
 from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-from .utils import getSlotIdfromDateTime
-from django.db.models import Q
+from .utils import uploadImage,getSlotIdfromDateTime
+
 from django.contrib import messages
 @login_required
 def findTutors(request):
 	return render(request,'mainApp/findTutors.html',{'std':request.user.student})
+
+@login_required
+def editAccountDetail(request):
+    if request.method == 'POST':
+        request.user.username = request.POST['Name']
+        request.user.email = request.POST['email']
+        request.user.student.phoneNumber= request.POST['phoneNumber']
+        imagePath=uploadImage(request.FILES['newImage'],request.user.id)
+        request.user.student.save()
+        if(hasattr(request.user,'tutor')):
+            this_user = request.user.tutor
+            this_user.user.username = request.POST['Name']
+            this_user.user.email = request.POST['email']
+            this_user.phoneNumber= request.POST['phoneNumber']
+            this_user.university = request.POST['university']
+            this_user.subject_code = request.POST['subject_code']
+            this_user.subject_tag = request.POST['subject_tag']
+            this_user.hourly_rate = request.POST['hourly_rate']
+            this_user.introduction = request.POST['introduction']
+            this_user.save()
+        return HttpResponseRedirect('/main/viewAccountDetail')
+    else:
+        this_user = request.user.student
+        return render(request,'mainApp/editAccountDetail_student.html',{'this_user':this_user})
 
 #list of tutors with requirement in side request.GET
 @login_required

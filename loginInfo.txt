@@ -3,11 +3,6 @@ http://localhost:8000/admin/
 username:admin
 password:admin1867
 
-teststudent
-username:peter123
-pw:mnbv1867
-
-
 students:
     ada123
     bob123
