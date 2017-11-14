@@ -170,7 +170,7 @@ def submitReviews(request, session_ID):
 		context = {'student_sessions': student_sessions, 'this_student': this_student,}
 		return render(request,'mainApp/review/submitReviews.html',context)
 
-	else 
+	else :
 		messages.info(request, 'You already submitted a review for this Session!')
 		return HttpResponseRedirect('/main/upcomingSessions')
 
