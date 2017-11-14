@@ -107,6 +107,8 @@ def bookSession(request):
 		schedule.save()
 		session = Session(session_tutor=tutor, session_datetime=date+" "+time_str, session_student=student, coupon_used=False)
 		session.save()
+		transaction = Transaction(involved_session=session, payment_student=student, payment_tutor=tutor)
+		transaction.save()
 
 	return redirect(viewUpcomingSessions)
 
@@ -133,7 +135,7 @@ def cancelSession(request, session_ID):
 	session_student_ID = this_student.id
 	session_tutor_ID = this_session.session_tutor
 	context = {'this_session': this_session, 'session_time': session_time, 'session_student_ID': session_student_ID, 'session_tutor_ID': session_tutor_ID}
-	return render(request,'mainApp/cancelSession.html',context)
+	return render(request,'mainApp/cancel/cancelSession.html',context)
 
 
 @login_required
@@ -158,7 +160,7 @@ def sessionCancelled(request, session_ID):
 		#add value back to student
 		this_session.session_student.amount+=temp_tutor.getStudentRate()
 		this_session.session_student.save()
-		return render(request,'mainApp/sessionCancelled.html')
+		return render(request,'mainApp/cancel/sessionCancelled.html')
 
 @login_required
 def submitReview(request, session_ID):
@@ -167,7 +169,7 @@ def submitReview(request, session_ID):
 	this_course = this_session.course_code
 	session_time = this_session.session_datetime
 	context = {'this_session': this_session, 'session_tutor': this_session.session_tutor, 'session_student': this_session.session_student, 'this_review': this_review, 'session_time': session_time,}
-	return render(request,'mainApp/submitReview.html',context)
+	return render(request,'mainApp/review/submitReview',context)
 
 @login_required
 def reviewSubmitted(request, session_ID):
@@ -175,4 +177,4 @@ def reviewSubmitted(request, session_ID):
 	this_session = Session.objects.get(id=session_ID)
 	this_review = this_session.session_review
 	this_review.state="completed"
-	return render(request,'mainApp/reviewSubmitted')
+	return render(request,'mainApp/review/reviewSubmitted')
