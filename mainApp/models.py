@@ -79,6 +79,7 @@ class Session(models.Model):
 	coupon_used=models.BooleanField()
 	session_datetime=models.DateTimeField()
 	state=models.CharField(max_length=10,default='normal')#cancelled/normal/ended/locked
+	review_state=models.CharField(max_length=10,default='empty')#complete
 	session_student=models.ForeignKey(Student)
 	session_tutor=models.ForeignKey(Tutor)
 	def __str__ (self):
@@ -87,7 +88,7 @@ class Session(models.Model):
 	
 #record twice for students wallet and tutors wallet
 class Transaction(models.Model):
-	amount=models.DecimalField(default=0)
+	amount=models.DecimalField(max_digits=7, decimal_places=2,default=0)
 	state=models.CharField(max_length=10,default='pending')#pending/completed/cancelled
 	involved_session=models.OneToOneField(Session)
 	payment_student=models.ForeignKey(Student)
@@ -118,7 +119,7 @@ class Schedule(models.Model):
 class Review(models.Model):
 	stars=models.IntegerField(default=3)
 	comment=models.CharField(max_length=200)
-	review_session=models.OneToOneField(Session)
+	written_for=models.OneToOneField(Tutor)
 	written_date=models.DateTimeField(auto_now_add=True)
 	course_code=models.CharField(max_length=10)
 	state=models.CharField(max_length=10,default='empty')#completed

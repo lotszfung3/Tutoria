@@ -163,12 +163,13 @@ def sessionCancelled(request, session_ID):
 		return render(request,'mainApp/cancel/sessionCancelled.html')
 
 @login_required
-def submitReviews(request):
+def submitReviews(request, session_ID):
 	this_student = request.user.student
 	# retrieve list of sessions associated with the student
 	# currently only retrieves sessions with (state='normal')
 	student_sessions = this_student.session_set.filter(state='ended')
-	# return list of sessions
+
+	# return list of ended sessions
 	context = {'student_sessions': student_sessions, 'this_student': this_student,}
 	return render(request,'mainApp/review/submitReviews.html',context)
 
