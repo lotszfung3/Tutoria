@@ -182,8 +182,8 @@ def reviewSubmitted(request, session_ID):
 	this_session = Session.objects.get(id=session_ID)
 
 	#get review info
-	rating = request.GET['rating']
-	comment = request.GET['comment']
+	rating = request.POST['rating']
+	comment = request.POST['comment']
 	tut = this_session.session_tutor
 
 	#create new review
