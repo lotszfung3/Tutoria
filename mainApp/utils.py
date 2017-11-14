@@ -32,8 +32,8 @@ def emailGateway(email_type,recipients,info):#recipent:[student name, tutor name
         print(email_format.format(" Session has been booked",recipients[0],"The session at {} has been booked.\n The amount {} including commission fee {} has been deducted from your wallet.".format(info.datetime,info.amount,info.commission)))
         print(email_format.format(" Session has been booked",recipients[1],"The session at {} has been booked.".format(info.datetime)))
     elif(email_type=='session_end'):
-        print(email_format.format(" Session has ended",recipients[0],"The session at {} has end.\n Please use the following link to finish a review form:\n {}".format(info.datetime,info.link)))
-        print(email_format.format(" Session has end",recipients[1],"The session at {} has end.\n The amount {} will be transferred to your wallet.".format(info.datetime,info.amount)))
+        print(email_format.format(" Session has ended",recipients[0],"The session at {} has ended.\n Please use the following link to finish a review form:\n {}".format(info.datetime,info.link)))
+        print(email_format.format(" Session has ended",recipients[1],"The session at {} has ended.\n The amount {} will be transferred to your wallet.".format(info.datetime,info.amount)))
     elif(email_type=='session_lock'):
         print(email_format.fomat(" Upcoming Session", recipients[0], "You have a session with {} at {}. You can no longer cancel this session. ".format(info.session_tutor,info.datetime)))
         print(email_format.fomat(" Upcoming Session", recipients[1], "You have a session with {} at {}. They can no longer cancel this session. ".format(info.session_student,info.datetime)))
