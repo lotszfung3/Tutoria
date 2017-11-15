@@ -19,6 +19,11 @@ urlpatterns = [
 	url(r'^forgetPw$',views_account.forgetPw,name='forgetPw'),
 	url(r'^retrievePw$',views_account.retrievePw,name='retrievePw'),
     url(r'^manageWallet$',views_account.manageWallet,name='manageWallet'),
+<<<<<<< HEAD
+    url(r'^submitReviews/(?P<session_ID>\d+)',views.submitReviews,name='submitReviews'),
+    url(r'^reviewSubmitted',views.reviewSubmitted,name='reviewSubmitted'),
+=======
     url(r'^viewAccountDetail$',views_account.viewAccountDetail,name='viewAccountDetail'),
 	url(r'^editAccountDetail$',views.editAccountDetail,name='editAccountDetail')
+>>>>>>> master
 ]

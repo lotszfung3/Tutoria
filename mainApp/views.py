@@ -157,7 +157,7 @@ def cancelSession(request, session_ID):
 	session_student_ID = this_student.id
 	session_tutor_ID = this_session.session_tutor
 	context = {'this_session': this_session, 'session_time': session_time, 'session_student_ID': session_student_ID, 'session_tutor_ID': session_tutor_ID}
-	return render(request,'mainApp/cancelSession.html',context)
+	return render(request,'mainApp/cancel/cancelSession.html',context)
 
 
 @login_required
@@ -166,7 +166,7 @@ def sessionCancelled(request, session_ID):
 	this_session = Session.objects.get(id=session_ID)
 	if (toCancel=='N'):
 		return HttpResponseRedirect('/main/upcomingSessions')
-	elif (this_session.state=='soon'):
+	elif (this_session.state=='locked'):
 		messages.info(request, 'You cannot cancel sessions that are starting so soon!')
 		return HttpResponseRedirect('/main/upcomingSessions')
 	else:
@@ -182,7 +182,50 @@ def sessionCancelled(request, session_ID):
 		#add value back to student
 		this_session.session_student.amount+=temp_tutor.getStudentRate()
 		this_session.session_student.save()
-		return render(request,'mainApp/sessionCancelled.html')
+		return render(request,'mainApp/cancel/sessionCancelled.html')
+
+@login_required
+def submitReviews(request, session_ID):
+	this_session = Session.objects.get(id=session_ID)
+	
+	if this_session.review_state=="empty":
+		context = {'student_sessions': student_sessions, 'this_student': this_student,}
+		return render(request,'mainApp/review/submitReviews.html',context)
+
+	else :
+		messages.info(request, 'You already submitted a review for this Session!')
+		return HttpResponseRedirect('/main/upcomingSessions')
+
+
+	# return list of ended sessions
+
+@login_required
+def reviewSubmitted(request, session_ID):
+	this_session = Session.objects.get(id=session_ID)
+
+	#get review info
+	rating = request.POST['rating']
+	comment = request.POST['comment']
+	tut = this_session.session_tutor
+
+	#create new review
+	new_review= Review(stars=int(rating), comment = comment, written_for=tut, involved_session=this_session, course_code="COMP3297", state="completed")
+	new_review.save()
+
+	this_session.review_state="complete"
+	this_session.save()
+
+	return render(request,'mainApp/review/reviewSubmitted')
+
+
+
+
+
+
+
+
+
+
 
 
 

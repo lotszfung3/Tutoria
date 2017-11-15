@@ -78,8 +78,8 @@ class Tutor(models.Model):
 class Session(models.Model):
 	coupon_used=models.BooleanField()
 	session_datetime=models.DateTimeField()
-	state=models.CharField(max_length=10,default='normal')#cancelled/normal/ended/soon
-	# if session state = 'soon' then the session is less than 24 hours away and cannot be cancelled
+	state=models.CharField(max_length=10,default='normal')#cancelled/normal/ended/locked
+	review_state=models.CharField(max_length=10,default='empty')#complete
 	session_student=models.ForeignKey(Student)
 	session_tutor=models.ForeignKey(Tutor)
 	def __str__ (self):
@@ -88,15 +88,13 @@ class Session(models.Model):
 	
 #record twice for students wallet and tutors wallet
 class Transaction(models.Model):
-	amount=models.IntegerField(default=0)
+	amount=models.DecimalField(max_digits=7, decimal_places=2,default=0)
 	state=models.CharField(max_length=10,default='pending')#pending/completed/cancelled
 	involved_session=models.OneToOneField(Session)
 	payment_student=models.ForeignKey(Student)
 	payment_tutor=models.ForeignKey(Tutor)
 	def __str__ (self):
 		return str(self.id)
-
-
 
 class Schedule(models.Model):
 	owned_tutor=models.OneToOneField(Tutor)
@@ -116,11 +114,17 @@ class Schedule(models.Model):
 class Review(models.Model):
 	stars=models.IntegerField(default=3)
 	comment=models.CharField(max_length=200)
+<<<<<<< HEAD
+	written_for=models.OneToOneField(Tutor)
+	involved_session=models.OneToOneField(Session)
+=======
 	involved_session=models.OneToOneField(Session)
 	written_student=models.ForeignKey(Student)
 	for_tutor=models.ForeignKey(Tutor)
+>>>>>>> master
 	written_date=models.DateTimeField(auto_now_add=True)
 	course_code=models.CharField(max_length=10)
+	state=models.CharField(max_length=10,default='empty')#completed
 	def __str__ (self):
 		return self.id
 

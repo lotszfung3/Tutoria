@@ -53,8 +53,8 @@ MIDDLEWARE = [
 ]
 
 CRON_CLASSES = [
-    "mainApp.crons.Update_Session_States",
-    "mainApp.crons.Update_Transaction_States",
+    "mainApp.crons.Lock_Session",
+    "mainApp.crons.End_Session",
 ]
 
 ROOT_URLCONF = 'Tutoria.urls'
