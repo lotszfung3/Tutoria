@@ -1,0 +1,48 @@
+{% extends "mainApp/base.html" %}
+
+{% block title %}findTutors{% endblock %}
+
+{% block content %}
+<div class="ui segment">
+<form class="ui form" action="editAccountDetail" method="post">{% csrf_token %}
+    <div class="field">
+        <label>Name</label>
+        <input type="text" name="Name" placeholder="Name" value={{this_user.user.username}}>
+    </div>
+    <div class="field">
+        <label>Phone Number</label>
+        <input type="text" name="phoneNumber" placeholder="Phone Number" value={{this_user.phoneNumber}}>
+    </div>
+    <div class="field">
+        <label>Email</label>
+        <input type="text" name="email" placeholder="email" value={{this_user.user.email}}>
+    </div>
+    <div class="field">
+        <label>University</label>
+        <input type="text" name="university" placeholder="university" value={{this_user.university}}>
+    </div>
+    <div class="field">
+        <label>Teaching Course Code</label>
+        <input type="text" name="subject_code" placeholder="subject_code" value={{this_user.subject_code}}>
+    </div>
+    <div class="field">
+        <label>Subject Tag</label>
+        <input type="text" name="subject_tag" placeholder="subject_tag" value={{this_user.subject_tag}}>
+    </div>
+    <div class="field">
+        <label>Hourly Rate</label>
+        <input type="text" name="hourly_rate" placeholder="hourly_rate" value={{this_user.hourly_rate}}>
+    </div>
+    <div>
+        <textarea name="introduction" placeholder="introduction" value={{this_user.introduction}}></textarea>
+    </div>
+    <div class="field"> 
+        <label>Select image to upload:</label>
+        <input type="file" name="fileToUpload" id="fileToUpload"><p></p>
+        <input type="submit" value="Upload Image" name="submit">
+    </div>
+    <p></p>
+    <button class="ui button" type="submit">Submit</button>
+</form>
+</div>
+{% endblock %}

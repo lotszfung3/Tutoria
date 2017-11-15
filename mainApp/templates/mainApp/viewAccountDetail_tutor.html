@@ -1,0 +1,25 @@
+{% extends "mainApp/base.html" %}
+
+{% block title %}findTutors{% endblock %}
+
+{% block content %}
+
+{% load static %}
+
+<h2>{{this_user}}'s Profile (Tutor)</h2>
+
+<img src="{% static "" %}{{this_user.photo_url}}"/ alt="{{this_user.photo_url}}" height="150" width="150">
+
+
+<p>     Name: {{this_user}}<br>
+        User Name: {{this_user.user.username}}<br>
+        Phone Number: {{this_user.phoneNumber}}<br>
+        Email: {{this_user.user.email}}<br>
+        University: {{this_user.university}}<br>
+        Teaching Course Code: {{this_user.subject_code}}<br>
+        Subject Tag: {{this_user.subject_tag}}<br>
+        Hourly Rate: {{this_user.hourly_rate}}<br>
+        Introduction: {{this_user.introduction}}<br>
+        Average Review Score: {{this_user.avg_review}}<br>
+</p>
+{% endblock %}

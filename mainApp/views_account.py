@@ -69,7 +69,8 @@ def register(request):
 		#if he want to be a tutor
 		if('role' in request.POST and request.POST['role']=='on'):
 			atype=request.POST['type'] if 'type' in request.POST else 'p'
-			tut=Tutor.create(user=user,phone=request.POST['phone'],introduction=request.POST['description'],hourly_rate=request.POST['hourlyRate'],uni=request.POST['uni'],
+			temprate=request.POST['hourlyRate'] if atype=='p' else 0
+			tut=Tutor.create(user=user,phone=request.POST['phone'],introduction=request.POST['description'],hourly_rate=temprate,uni=request.POST['uni'],
 							 subject_code=request.POST.getlist('subject'),tag=request.POST['tag'],atype=atype,imagePath='profilepic/{}.jpg'.format(str(user.id)))
 			tut.save()
 		return HttpResponseRedirect('/main/login?message=l_register')
@@ -117,4 +118,9 @@ def manageWallet(request):
 	else:
 		mes=paymentGateway(request.user,100 if request.GET['action']=='add' else -100)
 		return HttpResponse(mes)
+@login_required
+def viewAccountDetail(request):
+	this_user = request.user.student
+	return render(request, 'mainApp/viewAccountDetail_student.html', {'this_user': this_user})
+
 		
