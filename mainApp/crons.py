@@ -40,7 +40,9 @@ class End_Session(CronJobBase):
 				
 				tut = session.session_tutor
 				transAMT = tut.hourly_rate + (.05 * tut.hourly_rate)
-				transaction = Transaction.objects.get(involved_session=session.id, amount=transAMT, payment_student=session.session_student, payment_tutor=session.session_tutor)
+				transaction = Transaction(involved_session=session.id, amount=transAMT, payment_student=session.session_student, payment_tutor=session.session_tutor)
+
+				tut.amount += tut.hourly_rate
 				transaction.state="completed"
 				transaction.save()
 				emailGateway('transaction_received', [session.session_student, session.session_tutor], this_session)

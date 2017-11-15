@@ -107,8 +107,6 @@ def bookSession(request):
 		schedule.save()
 		session = Session(session_tutor=tutor, session_datetime=date+" "+time_str, session_student=student, coupon_used=False)
 		session.save()
-		transaction = Transaction(involved_session=session, payment_student=student, payment_tutor=tutor)
-		transaction.save()
 
 	return redirect(viewUpcomingSessions)
 
