@@ -84,22 +84,11 @@ class Session(models.Model):
 	def __str__ (self):
 		return str(self.id)
 
-class Wallet(models.Model):
-	amount=models.DecimalField(max_digits=7, decimal_places=2,default=0)
-	student=models.OneToOneField(Student, on_delete=models.CASCADE)
-	tutor=models.OneToOneField(Tutor, on_delete=models.CASCADE,null=True)
-	@classmethod
-	def create(cls,tutor,student):
-		wallet = cls(tutor=tutor,student=student)
-		wallet.save()
-		return wallet
-	def __str__(self):
-		return str(self.student)	
+
 #record twice for students wallet and tutors wallet
 class Transaction(models.Model):
 	amount=models.DecimalField(max_digits=7, decimal_places=2,default=0)
 	create_date=models.DateTimeField(auto_now_add=True)
-	belong_wallet=models.ManyToManyField(Wallet)#should belong to two wallet
 	state=models.CharField(max_length=10,default='pending')#pending/completed/cancelled
 	involved_session=models.OneToOneField(Session,null=True)
 	payment_student=models.ForeignKey(Student)
@@ -112,7 +101,19 @@ class Transaction(models.Model):
 		tran.save()
 	def __str__ (self):
 		return str(self.id)
-
+class Wallet(models.Model):
+	amount=models.DecimalField(max_digits=7, decimal_places=2,default=0)
+	student=models.OneToOneField(Student, on_delete=models.CASCADE)
+	tutor=models.OneToOneField(Tutor, on_delete=models.CASCADE,null=True)
+	transactions=models.ManyToManyField(Transaction)#should belong to two wallet
+	@classmethod
+	def create(cls,tutor,student):
+		wallet = cls(tutor=tutor,student=student)
+		wallet.save()
+		return wallet
+	def __str__(self):
+		return str(self.student)	
+	
 class Schedule(models.Model):
 	owned_tutor=models.OneToOneField(Tutor)
 	start_date=models.DateField(auto_now_add=True)
