@@ -95,10 +95,18 @@ class Transaction(models.Model):
 	payment_tutor=models.ForeignKey(Tutor)
 	@classmethod
 	def create(cls,session,amount,student,tutor):
+		if tutor is None:
+			tutor=User.objects.get(first_name="Payment").tutor
 		tran=cls(amount=amount,payment_student=student,payment_tutor=tutor,involved_session=session)
-		if(not involved_session):#deposit/withdrawl
+		if(tran.involved_session is None):#deposit/withdrawl
 			tran.state="completed"
 		tran.save()
+		student.wallet.transactions.add(tran)
+		student.wallet.save()
+		tutor.wallet.transactions.add(tran)
+		tutor.wallet.save()
+		return tran
+		
 	def __str__ (self):
 		return str(self.id)
 class Wallet(models.Model):

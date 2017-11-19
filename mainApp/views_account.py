@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .models import User,Student,Tutor,SubjectCode,Wallet
+from .models import User,Student,Tutor,SubjectCode,Wallet,Transaction
 from datetime import date,timedelta
 from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import HttpResponseRedirect
@@ -119,7 +119,10 @@ def manageWallet(request):
 	if(request.method=='GET'):
 		return render(request,'mainApp/wallet.html')
 	else:
-		mes=paymentGateway(request.user,100 if request.GET['action']=='add' else -100)
+		amount=100 if request.GET['action']=='add' else -100
+		transaction=Transaction.create(None,amount,request.user.student,None)
+		mes=paymentGateway(request.user,amount)
+
 		return HttpResponse(mes)
 @login_required
 def viewAccountDetail(request):
@@ -128,6 +131,7 @@ def viewAccountDetail(request):
 
 @login_required
 def viewTransaction(request):
-	student=request.user.student
-	return render(request, 'mainApp/viewTransaction.html', {'student': student,'transactions':student.transaction_set if student.transaction_set.count()>0 else None})
+	name=request.user.first_name
+	wallet=request.user.student.wallet
+	return render(request, 'mainApp/viewTransaction.html', {'name': name,'transactions':wallet.transactions.all() if wallet.transactions.count()>0 else None})
 		

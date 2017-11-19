@@ -2,7 +2,7 @@
 
 {% block title %}View Transaction History{% endblock %}
 {% block content %}
-<h2>{{student}}'s Transaction History</h2>
+<h2>{{name}}'s Transaction History</h2>
 {% if transactions %}
 <table cellspacing="20" class="ui celled table">
 	<tr>
@@ -25,14 +25,15 @@
 			Paid to:
 		</th>
 	</tr>
-	{% for trans in transaction %}
+	{% for trans in transactions %}
 	<tr>
 		<td>
 			<p>{{trans.create_date}}</p>
 		</td>
 		<td>
-			{% if trans.session %}<p>Session payment</p>
-			{% else %}<p>Deposit/Withdrawl</p>{% endif %}
+			<p>{% if trans.session %}Session payment
+			{% elif trans.amount > 0 %}Deposit
+				{% else %} Withdrawl{% endif %}</p>
 		</td>
 		<td>
 			<p>{{trans.amount}}</p>
@@ -40,12 +41,22 @@
 		<td>
 			<p>{{trans.state}}</p>
 		</td>
+		{% if trans.amount > 0 %}
 		<td>
 			<p>{{trans.payment_tutor}}</p>
 		</td>
 		<td>
 			<p>{{trans.payment_student}}</p>
 		</td>
+				{% else %} 
+		<td>
+			<p>{{trans.payment_student}}</p>
+		</td>
+		<td>
+			<p>{{trans.payment_tutor}}</p>
+		</td>
+		
+		{% endif %}
 	</tr>
 	{% endfor %}
 </table>

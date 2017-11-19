@@ -1,11 +1,13 @@
 from datetime import datetime, timezone
 from django.db import models
 from django.core.files.storage import default_storage
-
 email_format='''
+Email
+---------------------------------------
 Email Title: Tutoria :{}
 Email recipient:{}
 Email body:{}
+---------------------------------------
 '''
 def getSlotIdfromDateTime(s_date,tutor_type):
     roundedA = s_date.replace(hour = 0, minute = 0)
@@ -46,12 +48,10 @@ def emailGateway(email_type,recipients,info):#recipent:[student name, tutor name
         print(email_format.format("Reset your password",recipients,"You can use the following link to reset your password:\n{}".format(info)))
 
 def paymentGateway(user,amount):
-    tempAmount=user.student.amount+amount
-    user.student.amount=tempAmount
-    user.student.save()
-    if(hasattr(user,'tutor')):
-        user.tutor.amount=tempAmount
-        user.tutor.save()
+    wallet=user.student.wallet
+    tempAmount=wallet.amount+amount
+    wallet.amount=tempAmount
+    wallet.save()
     return tempAmount
 def test():
 	print("asd")
