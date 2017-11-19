@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from datetime import datetime,timezone, timedelta
 
 # Create your models here.
+
 class SubjectCode(models.Model):
 	subject_code=models.CharField(max_length=8)
 	@classmethod
@@ -18,7 +19,6 @@ class Student(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	phoneNumber=models.CharField(max_length=10)
 	photo_url=models.CharField(max_length=30)
-	amount=models.DecimalField(max_digits=7, decimal_places=2,default=0)
 	@classmethod
 	def create(cls, user):
 		student = cls(user=user)
@@ -31,7 +31,6 @@ class Student(models.Model):
 class Tutor(models.Model):
 	phoneNumber=models.CharField(max_length=10)
 	photo_url=models.CharField(max_length=30)
-	amount=models.DecimalField(max_digits=7, decimal_places=2,default=0)
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	#below different from student
 	tutor_type=models.CharField(max_length=8,default="Private")#Contract/Private
@@ -85,14 +84,32 @@ class Session(models.Model):
 	def __str__ (self):
 		return str(self.id)
 
-	
+class Wallet(models.Model):
+	amount=models.DecimalField(max_digits=7, decimal_places=2,default=0)
+	student=models.OneToOneField(Student, on_delete=models.CASCADE)
+	tutor=models.OneToOneField(Tutor, on_delete=models.CASCADE,null=True)
+	@classmethod
+	def create(cls,tutor,student):
+		wallet = cls(tutor=tutor,student=student)
+		wallet.save()
+		return wallet
+	def __str__(self):
+		return str(self.student)	
 #record twice for students wallet and tutors wallet
 class Transaction(models.Model):
 	amount=models.DecimalField(max_digits=7, decimal_places=2,default=0)
+	create_date=models.DateTimeField(auto_now_add=True)
+	belong_wallet=models.ManyToManyField(Wallet)#should belong to two wallet
 	state=models.CharField(max_length=10,default='pending')#pending/completed/cancelled
-	involved_session=models.OneToOneField(Session)
+	involved_session=models.OneToOneField(Session,null=True)
 	payment_student=models.ForeignKey(Student)
 	payment_tutor=models.ForeignKey(Tutor)
+	@classmethod
+	def create(cls,session,amount,student,tutor):
+		tran=cls(amount=amount,payment_student=student,payment_tutor=tutor,involved_session=session)
+		if(not involved_session):#deposit/withdrawl
+			tran.state="completed"
+		tran.save()
 	def __str__ (self):
 		return str(self.id)
 
@@ -114,19 +131,15 @@ class Schedule(models.Model):
 class Review(models.Model):
 	stars=models.IntegerField(default=3)
 	comment=models.CharField(max_length=200)
-<<<<<<< HEAD
-	written_for=models.OneToOneField(Tutor)
-	involved_session=models.OneToOneField(Session)
-=======
 	involved_session=models.OneToOneField(Session)
 	written_student=models.ForeignKey(Student)
 	for_tutor=models.ForeignKey(Tutor)
->>>>>>> master
 	written_date=models.DateTimeField(auto_now_add=True)
 	course_code=models.CharField(max_length=10)
 	state=models.CharField(max_length=10,default='empty')#completed
 	def __str__ (self):
 		return self.id
+
 
 class Coupon(models.Model):
 	coupon_code=models.CharField(max_length=30)

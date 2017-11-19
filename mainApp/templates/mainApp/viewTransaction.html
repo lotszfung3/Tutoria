@@ -2,50 +2,54 @@
 
 {% block title %}View Transaction History{% endblock %}
 {% block content %}
-<h2>{{user}}'s Transaction History</h2>
-{% if user_transaction %}
+<h2>{{student}}'s Transaction History</h2>
+{% if transactions %}
 <table cellspacing="20" class="ui celled table">
 	<tr>
 		<th>
-			Session Date
+			Transaction Date:
 		</th>
 		<th>
-			Session ID
+			Transaction type:
 		</th>
 		<th>
-			Amount
+			Amount:
 		</th>
 		<th>
-			State
+			State:
 		</th>
 		<th>
-			Involved Tutor
+			Paid from:
 		</th>
 		<th>
-			Involved Student
+			Paid to:
 		</th>
 	</tr>
-	{% for trans in user_transactions %}
+	{% for trans in transaction %}
 	<tr>
 		<td>
-			<p>{{session.session_datetime}}</p>
+			<p>{{trans.create_date}}</p>
 		</td>
 		<td>
-			<p>{{session.id}}</p>
+			{% if trans.session %}<p>Session payment</p>
+			{% else %}<p>Deposit/Withdrawl</p>{% endif %}
 		</td>
 		<td>
-			<p>{{session.state}}</p>
+			<p>{{trans.amount}}</p>
 		</td>
 		<td>
-			<p>{{session.session_tutor}}</p>
+			<p>{{trans.state}}</p>
 		</td>
 		<td>
-			<a href="cancelSession/{{session.id}}">Cancel Session</a>
+			<p>{{trans.payment_tutor}}</p>
+		</td>
+		<td>
+			<p>{{trans.payment_student}}</p>
 		</td>
 	</tr>
 	{% endfor %}
 </table>
 {% else %}
-	<p>No sessions currently booked</p>
+	<p>No transactions record</p>
 {% endif %}
 {% endblock %}

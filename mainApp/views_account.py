@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .models import User,Student,Tutor,SubjectCode
+from .models import User,Student,Tutor,SubjectCode,Wallet
 from datetime import date,timedelta
 from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import HttpResponseRedirect
@@ -67,12 +67,15 @@ def register(request):
 		user.student.phoneNumber=request.POST['phone']
 		user.student.save()
 		#if he want to be a tutor
+		tut=None
 		if('role' in request.POST and request.POST['role']=='on'):
 			atype=request.POST['type'] if 'type' in request.POST else 'p'
 			temprate=request.POST['hourlyRate'] if atype=='p' else 0
 			tut=Tutor.create(user=user,phone=request.POST['phone'],introduction=request.POST['description'],hourly_rate=temprate,uni=request.POST['uni'],
 							 subject_code=request.POST.getlist('subject'),tag=request.POST['tag'],atype=atype,imagePath='profilepic/{}.jpg'.format(str(user.id)))
+			
 			tut.save()
+		Wallet.create(student=user.student,tutor=tut)
 		return HttpResponseRedirect('/main/login?message=l_register')
 def forgetPw(request):
 	if request.method=='GET':
@@ -123,4 +126,8 @@ def viewAccountDetail(request):
 	this_user = request.user.student
 	return render(request, 'mainApp/viewAccountDetail_student.html', {'this_user': this_user})
 
+@login_required
+def viewTransaction(request):
+	student=request.user.student
+	return render(request, 'mainApp/viewTransaction.html', {'student': student,'transactions':student.transaction_set if student.transaction_set.count()>0 else None})
 		
