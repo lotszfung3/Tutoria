@@ -102,11 +102,11 @@ class Transaction(models.Model):
 			tran.state="completed"
 		tran.save()
 		student.wallet.transactions.add(tran)
+		# TRANSACTION IS CREATED WHEN PAYMENT IS CONFIRMED
 		student.wallet.save()
 		tutor.wallet.transactions.add(tran)
 		tutor.wallet.save()
 		return tran
-		
 	def __str__ (self):
 		return str(self.id)
 class Wallet(models.Model):
@@ -140,7 +140,7 @@ class Schedule(models.Model):
 class Review(models.Model):
 	stars=models.IntegerField(default=3)
 	comment=models.CharField(max_length=200)
-	involved_session=models.OneToOneField(Session)
+	involved_ssession=models.OneToOneField(Session)
 	written_student=models.ForeignKey(Student)
 	for_tutor=models.ForeignKey(Tutor)
 	written_date=models.DateTimeField(auto_now_add=True)

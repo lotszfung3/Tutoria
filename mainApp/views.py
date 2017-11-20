@@ -5,7 +5,7 @@ from datetime import date
 from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-from .utils import uploadImage,getSlotIdfromDateTime
+from .utils import uploadImage,getSlotIdfromDateTime, emailGateway,paymentGateway
 
 from django.contrib import messages
 @login_required
@@ -101,10 +101,15 @@ def confirmPayment(request):
 	student_rate = tutor.getStudentRate()
 	schedule = Schedule.objects.get(owned_tutor=tutor)
 	slot = int(request.GET['slot'])
-	student = Student.objects.get(id=request.user.student.id)
+	student = Student.objects.get(id=request.user.student.id) 
+	student_wallet = Wallet.objects.get(student=student.id)
+
+
 	if(str(schedule.available_timeslot)[slot]=='a'):
+		student.wallet.amount = student.wallet.amount - tutor.getStudentRate()
+		student.wallet.save()
 		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(date.today()), 'student': student, 
-			'student_rate': student_rate})
+			'student_rate': student_rate,'student_wallet': student.wallet})
 	else:
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor})
 
@@ -113,9 +118,11 @@ def confirmPayment(request):
 def bookSession(request):
 	tutor = Tutor.objects.get(id=request.GET['tutorsID'])
 	schedule = Schedule.objects.get(owned_tutor=tutor)
+	student = Student.objects.get(id=request.user.student.id)
 	time = int(request.GET['time'])
 	date = request.GET['date']
 	slot = int(request.GET['slot'])
+
 	if(tutor.tutor_type=="Private"):
 		time_str = str(time+9) + ":00:00"
 	else:
@@ -123,15 +130,19 @@ def bookSession(request):
 			time_str = str(int(time/2+9)) + ":00:00"
 		else:
 			time_str = str(int((time-1)/2+9)) + ":30:00"
-	student = Student.objects.get(id=request.user.student.id)
-	student.amount = student.amount - tutor.getStudentRate()
-	student.save()
+
+
 	if(str(schedule.available_timeslot)[slot]=='a'):
 		schedule.available_timeslot = schedule.available_timeslot[:slot] + "b" + schedule.available_timeslot[(slot+1):]
 		schedule.save()
 		session = Session(session_tutor=tutor, session_datetime=date+" "+time_str, session_student=student, coupon_used=False)
 		session.save()
 
+		transAMT = tutor.hourly_rate + (.05 * tutor.hourly_rate)
+		new_transaction = Transaction.create(session, transAMT, student, tutor)
+		new_transaction.save()
+
+		
 	return redirect(viewUpcomingSessions)
 
 #routes for cancel payment
@@ -141,7 +152,7 @@ def viewUpcomingSessions(request):
 	this_student = request.user.student
 	# retrieve list of sessions associated with the student
 	# currently only retrieves sessions with (state='normal')
-	student_sessions = this_student.session_set.filter(state='soon') | this_student.session_set.filter(state='normal')
+	student_sessions = this_student.session_set.filter(state='locked') | this_student.session_set.filter(state='normal')
 	# return list of sessions
 	context = {'student_sessions': student_sessions, 'this_student': this_student,}
 	return render(request,'mainApp/viewUpcomingSessions.html',context)
@@ -156,14 +167,30 @@ def cancelSession(request, session_ID):
 	session_time = this_session.session_datetime
 	session_student_ID = this_student.id
 	session_tutor_ID = this_session.session_tutor
-	context = {'this_session': this_session, 'session_time': session_time, 'session_student_ID': session_student_ID, 'session_tutor_ID': session_tutor_ID}
-	return render(request,'mainApp/cancel/cancelSession.html',context)
+
+	now = datetime.now(timezone.utc)
+	if ((session_time + timedelta(hours=1) < now)):
+		messages.info(request, 'This session has ended')
+		return HttpResponseRedirect('/main/upcomingSessions')
+		
+	elif ((session_time  < (now + timedelta(hours=24))) & (this_session.state=='normal')):
+		messages.info(request, 'You cannot cancel sessions that are starting so soon!')
+		this_session.state='locked'
+		this_session.save()
+		emailGateway('session_lock', [this_student, session_tutor_ID], this_session)
+		return HttpResponseRedirect('/main/upcomingSessions')
+	else:
+		context = {'this_session': this_session, 'session_time': session_time, 'session_student_ID': session_student_ID, 'session_tutor_ID': session_tutor_ID}
+		return render(request,'mainApp/cancel/cancelSession.html',context)
 
 
 @login_required
 def sessionCancelled(request, session_ID):
 	toCancel = request.GET['YesNoCancel']
 	this_session = Session.objects.get(id=session_ID)
+	this_transaction = Transaction.objects.get(involved_session=session_ID)
+	this_student = request.user.student
+
 	if (toCancel=='N'):
 		return HttpResponseRedirect('/main/upcomingSessions')
 	elif (this_session.state=='locked'):
@@ -180,8 +207,16 @@ def sessionCancelled(request, session_ID):
 		temp_sch.available_timeslot=temp_sch.available_timeslot[:temp_slot]+"a"+temp_sch.available_timeslot[temp_slot+1:]
 		temp_sch.save()
 		#add value back to student
-		this_session.session_student.amount+=temp_tutor.getStudentRate()
+		student_wallet = Wallet.objects.get(student=this_student.id)
+		student_wallet.amount += temp_tutor.getStudentRate()
+		student_wallet.save()
+
+		#change transaction state
+		this_transaction.state='cancelled'
+		this_transaction.save()
+
 		this_session.session_student.save()
+
 		return render(request,'mainApp/cancel/sessionCancelled.html')
 
 @login_required
