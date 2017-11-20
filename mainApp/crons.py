@@ -33,25 +33,26 @@ class End_Session(CronJobBase):
 
 		all_sessions = Session.objects.all()
 		for session in all_sessions:
-			if ((session.session_datetime + timedelta(hours=1)) < now) & (session.state=='locked'):
+			time_passed=now-session.session_datetime
+			if (time_passed>timedelta(hours=1) || (time_passed>timedelta(minutes=30) && session.session_tutor.tutor_type=="Contract")):
 				session.state='ended'
-				session_transaction = Transaction.objects.get(involved_session=session.id)
+				session_transaction = session.transaction
 				session_transaction.state = 'completed'
 
-				# add tutor rate tot tutor wallet
+				# add tutor rate to tutor wallet
 				tut = session.session_tutor
-				tut_wallet = Wallet.objects.get(tutor=tut.id)
+				tut_wallet = tut.wallet
 				tut_wallet.amount += tut.hourly_rate
 				tut_wallet.save()
 
 				# add 5% to myTutor wallet
 				admin = User.objects.get(username='admin')
-				myTutor_wallet = Wallet.objects.get(tutor=admin.tutor.id)
+				myTutor_wallet = admin.wallet
 				myTutor_wallet.amount += (session_transaction.amount - tut.hourly_rate)
 				myTutor_wallet.save()
 
 				session.save()		
 				session_transaction.save()		
-				emailGateway('session_end', [session.session_student,tut], session)
-				emailGateway('transaction_received', [session.session_student, tut], this_session)
+				emailGateway('session_end', [session.session_student,tut], {"session_datetime":session.session_datetime,"link":request.get_host()+"/main/submitReviews/"+session.id})
+				emailGateway('transaction_received', [session.session_student, tut], session)
 

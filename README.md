@@ -1,16 +1,13 @@
-"# Tutoria" 
+# Tutoria
 
+Limitations:
+Since the server is supposed to working for most of the time continuously. Some functionalities require scheduling like lock sessions and end sessions use case have to run routinely each half an hour. So if the django server is not opening for a while. Some update may have to be done manually
 
-31/10/2017
+Steps required to deploy:
+extra package installed:
+django-cron
+``` pip install django-cron ```
 
-to access student and tutor of logged in user:
+Then run the server.
 
-`-> request.user.student/request.user.tutor`
-
-
-01/11/2017
-gateway for email and payment in mainApp.utils
-model
-
-TODO:
-add a new app 'accounts' to handle the relevant route 
+``` python manage.py runserver ```

@@ -7,7 +7,7 @@
 	<h3>Session ID: <p>{{this_session}}</p></h3>
 	<h3>Tutor: <p>{{session_tutor}}</p></h3>
 	<h3>Date : <p>{{session_time}}</p></h3>
-	<form class="ui form" action="/main/{{this_session}}/reviewSubmitted" method="post">
+	<form class="ui form" action="/main/reviewSubmitted?session_ID={{this_session}}" method="post">
 		<div class="field">
     		<label>Please rate the quality of your session on a scale from 0-5: </label>
     		<select name="rating">

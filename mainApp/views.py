@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from .utils import uploadImage,getSlotIdfromDateTime, emailGateway,paymentGateway
+from django.db.models import Q
 
 from django.contrib import messages
 @login_required
@@ -62,14 +63,13 @@ def tutorsList(request):
 		tutor_query.append(Tutor.objects.filter(tutor_type='Contract'))
 	elif(request.GET['type']=='p'):
 		tutor_query.append(Tutor.objects.filter(tutor_type='Private'))
-
+		
 	tutor_query.append(Tutor.objects.filter(activated=True))
 
 	tutor_all = Tutor.objects.all()
 
 	for i in range(len(tutor_query)):
 		tutor_all = tutor_all.intersection(tutor_query[i])	
-
 	tutor_list = []
 	course = request.GET['course']
 	if(course!=''):
@@ -81,7 +81,8 @@ def tutorsList(request):
 					break;
 	else:
 		for tutor in tutor_all:
-			tutor_list.append(tutor)
+			if(tutor.user.id!=request.user.id):
+				tutor_list.append(tutor)
 
 	if(len(tutor_list)==0):
 		for tutor in Tutor.objects.filter(activated=True):
@@ -169,7 +170,7 @@ def cancelSession(request, session_ID):
 	session_tutor_ID = this_session.session_tutor
 
 	now = datetime.now(timezone.utc)
-	if ((session_time + timedelta(hours=1) < now)):
+	if (this_session.state=='ended'):#ended
 		messages.info(request, 'This session has ended')
 		return HttpResponseRedirect('/main/upcomingSessions')
 		
@@ -179,6 +180,15 @@ def cancelSession(request, session_ID):
 		this_session.save()
 		emailGateway('session_lock', [this_student, session_tutor_ID], this_session)
 		return HttpResponseRedirect('/main/upcomingSessions')
+	
+	elif(this_session.state=='cancelled'):#cancelled
+		messages.info(request,'This session have been cancelled')
+		return HttpResponseRedirect('/main/upcomingSessions')
+	
+	elif(this_session.state=='locked'):
+		messages.info(request,'You cannot cancel sessions that are starting so soon!')
+		return HttpResponseRedirect('/main/upcomingSessions')
+	
 	else:
 		context = {'this_session': this_session, 'session_time': session_time, 'session_student_ID': session_student_ID, 'session_tutor_ID': session_tutor_ID}
 		return render(request,'mainApp/cancel/cancelSession.html',context)
@@ -203,11 +213,10 @@ def sessionCancelled(request, session_ID):
 		temp_tutor=this_session.session_tutor
 		temp_slot=getSlotIdfromDateTime(this_session.session_datetime,temp_tutor.tutor_type)
 		temp_sch=temp_tutor.schedule
-		print("slot"+ str(temp_slot))
 		temp_sch.available_timeslot=temp_sch.available_timeslot[:temp_slot]+"a"+temp_sch.available_timeslot[temp_slot+1:]
 		temp_sch.save()
 		#add value back to student
-		student_wallet = Wallet.objects.get(student=this_student.id)
+		student_wallet = this_student.wallet
 		student_wallet.amount += temp_tutor.getStudentRate()
 		student_wallet.save()
 
@@ -224,18 +233,19 @@ def submitReviews(request, session_ID):
 	this_session = Session.objects.get(id=session_ID)
 	
 	if this_session.review_state=="empty":
-		context = {'student_sessions': student_sessions, 'this_student': this_student,}
+		context = {'student_sessions': student_sessions, 'this_student': this_student}
 		return render(request,'mainApp/review/submitReviews.html',context)
 
 	else :
-		messages.info(request, 'You already submitted a review for this Session!')
+		messages.info(request, 'You have already submitted a review for this Session!')
 		return HttpResponseRedirect('/main/upcomingSessions')
 
 
 	# return list of ended sessions
 
 @login_required
-def reviewSubmitted(request, session_ID):
+def reviewSubmitted(request):
+	session_ID=request.GET["session_ID"]
 	this_session = Session.objects.get(id=session_ID)
 
 	#get review info
@@ -250,7 +260,7 @@ def reviewSubmitted(request, session_ID):
 	this_session.review_state="complete"
 	this_session.save()
 
-	return render(request,'mainApp/review/reviewSubmitted')
+	return render(request,'mainApp/review/reviewSubmitted.html')
 
 
 

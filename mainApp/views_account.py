@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from .models import User,Student,Tutor,SubjectCode,Wallet,Transaction
-from datetime import date,timedelta
+from datetime import datetime,date,timedelta,timezone
 from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import HttpResponseRedirect
 from django.contrib.auth.models import User
@@ -133,5 +133,5 @@ def viewAccountDetail(request):
 def viewTransaction(request):
 	name=request.user.first_name
 	wallet=request.user.student.wallet
-	return render(request, 'mainApp/viewTransaction.html', {'name': name,'transactions':wallet.transactions.all() if wallet.transactions.count()>0 else None})
+	return render(request, 'mainApp/viewTransaction.html', {'name': name,'transactions':wallet.transactions.filter(create_date__lte=datetime.now(timezone.utc)+timedelta(days=30)).order_by("-create_date") if wallet.transactions.count()>0 else None})
 		
