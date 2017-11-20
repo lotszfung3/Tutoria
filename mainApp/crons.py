@@ -14,14 +14,14 @@ class Lock_Session(CronJobBase):
 	def do(self):
 		now = datetime.now(timezone.utc)
 
-		all_sessions = Sessions.objects.all()
+		all_sessions = Session.objects.all()
 		for session in all_sessions:
-			if ((session.session_datetime  < (now + timedelta(hours=24))) & (session.state=="normal")):
+			if ((session.session_datetime  < (now + timedelta(hours=24))) & (session.state=='normal')):
 				tutor = session.session_tutor
 				student = session.session_student
-				session.state="locked"
+				session.state='locked'
 				session.save()
-				emailGateway('session_lock', [session.session_student,session.session_tutor], session)
+				emailGateway('session_lock', [student, tutor], session)
 
 
 class End_Session(CronJobBase):
@@ -31,19 +31,27 @@ class End_Session(CronJobBase):
 	def do(self):
 		now = datetime.now(timezone.utc)
 
-		all_sessions = Sessions.objects.all()
+		all_sessions = Session.objects.all()
 		for session in all_sessions:
-			if ((session.session_datetime + timedelta(hours=1)) < now) & (session.state=="locked"):
-				session.state="ended"
-				session.save()
-				emailGateway('session_end', [session.session_student,session.session_tutor], session)
-				
-				tut = session.session_tutor
-				transAMT = tut.hourly_rate + (.05 * tut.hourly_rate)
-				transaction = Transaction(involved_session=session.id, amount=transAMT, payment_student=session.session_student, payment_tutor=session.session_tutor)
+			if ((session.session_datetime + timedelta(hours=1)) < now) & (session.state=='locked'):
+				session.state='ended'
+				session_transaction = Transaction.objects.get(involved_session=session.id)
+				session_transaction.state = 'completed'
 
-				tut.amount += tut.hourly_rate
-				transaction.state="completed"
-				transaction.save()
-				emailGateway('transaction_received', [session.session_student, session.session_tutor], this_session)
+				# add tutor rate tot tutor wallet
+				tut = session.session_tutor
+				tut_wallet = Wallet.objects.get(tutor=tut.id)
+				tut_wallet.amount += tut.hourly_rate
+				tut_wallet.save()
+
+				# add 5% to myTutor wallet
+				admin = User.objects.get(username='admin')
+				myTutor_wallet = Wallet.objects.get(tutor=admin.tutor.id)
+				myTutor_wallet.amount += (session_transaction.amount - tut.hourly_rate)
+				myTutor_wallet.save()
+
+				session.save()		
+				session_transaction.save()		
+				emailGateway('session_end', [session.session_student,tut], session)
+				emailGateway('transaction_received', [session.session_student, tut], this_session)
 
