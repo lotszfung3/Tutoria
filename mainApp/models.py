@@ -146,7 +146,7 @@ class Review(models.Model):
 	written_date=models.DateTimeField(auto_now_add=True)
 	course_code=models.CharField(max_length=10)
 	state=models.CharField(max_length=10,default='empty')#completed
-	is_anonymous=models.BooleanField()
+	is_anonymous=models.BooleanField(default=True)
 	def __str__ (self):
 		return str(self.involved_session)
 
