@@ -1,4 +1,4 @@
-from django.db import models
+from django.db.models import F
 from .models import *
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -34,7 +34,7 @@ class End_Session(CronJobBase):
 		all_sessions = Session.objects.all()
 		for session in all_sessions:
 			time_passed=now-session.session_datetime
-			if (time_passed>timedelta(hours=1) || (time_passed>timedelta(minutes=30) && session.session_tutor.tutor_type=="Contract")):
+			if (time_passed>timedelta(hours=1) or (time_passed>timedelta(minutes=30) and session.session_tutor.tutor_type=="Contract")):
 				session.state='ended'
 				session_transaction = session.transaction
 				session_transaction.state = 'completed'
@@ -56,3 +56,12 @@ class End_Session(CronJobBase):
 				emailGateway('session_end', [session.session_student,tut], {"session_datetime":session.session_datetime,"link":request.get_host()+"/main/submitReviews/"+session.id})
 				emailGateway('transaction_received', [session.session_student, tut], session)
 
+class New_Day_Schedule(CronJobBase):
+	RUN_AT_TIMES=['00:00']
+	schedule=Schedule(run_at_times=RUN_AT_TIMES)
+	code='Tutoria.New_Day_Schedule_cron'
+	def do(self):
+		Schedule.objects.all().update(start_date=datetime.now(timezone.utc))
+		for sch in Schedule.objects.all():
+			sch.available_timeslot=sch.available_timeslot[7:]+'a'*7
+			sch.save()
