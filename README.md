@@ -5,9 +5,17 @@ Since the server is supposed to working for most of the time continuously. Some 
 
 Steps required to deploy:
 extra package installed:
-django-cron
+django-cron.
+
 ``` pip install django-cron ```
 
 Then run the server.
 
 ``` python manage.py runserver ```
+
+Start the schedule that run every 30 minutes using
+
+``` crontab -e
+*/30 * * * * source /home/ubuntu/.bashrc && 
+source /home/ubuntu/work/your-project/bin/activate && 
+python /home/ubuntu/work/your-project/src/manage.py runcrons ```

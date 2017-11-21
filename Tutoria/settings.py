@@ -55,7 +55,8 @@ MIDDLEWARE = [
 CRON_CLASSES = [
     "mainApp.crons.Lock_Session",
     "mainApp.crons.End_Session",
-    "mainApp.crons.New_Day_Schedule"
+    "mainApp.crons.New_Day_Schedule",
+	"mainApp.crons.Test_Cron"
 ]
 
 ROOT_URLCONF = 'Tutoria.urls'
