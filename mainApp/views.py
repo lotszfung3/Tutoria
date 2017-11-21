@@ -272,7 +272,7 @@ def reviewSubmitted(request):
 	else:
 		is_anonymous=False
 	#create new review
-	new_review = Review(stars=int(rating), anonymous=is_anonymous,comment = comment, for_tutor=tut, written_student= student,involved_session=this_session, course_code="COMP3297", state="completed")
+	new_review = Review(stars=int(rating), is_anonymous=is_anonymous,comment = comment, for_tutor=tut, written_student= student,involved_session=this_session, course_code="COMP3297", state="completed")
 	new_review.save()
 
 	this_session.review_state='complete'

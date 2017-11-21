@@ -13,13 +13,17 @@ class Lock_Session(CronJobBase):
 	def do(self):
 		now = datetime.now(timezone.utc)
 
-		all_sessions = Session.objects.all()
+		all_sessions = Session.objects.filter(state='normal')
 		for session in all_sessions:
-			if ((session.session_datetime  < (now + timedelta(hours=24))) & (session.state=='normal')):
+			if session.session_datetime  < (now + timedelta(hours=24)):
+				
+				# lock session
+				session.state = 'locked'
+				session.save()
+
+				# send email
 				tutor = session.session_tutor
 				student = session.session_student
-				session.state='locked'
-				session.save()
 				emailGateway('session_lock', [student, tutor], session)
 
 
@@ -30,13 +34,16 @@ class End_Session(CronJobBase):
 	def do(self):
 		now = datetime.now(timezone.utc)
 
-		all_sessions = Session.objects.all()
+		# all potentially ended sessions
+		all_sessions=Session.objects.filter(state='locked')
 		for session in all_sessions:
 			time_passed=now-session.session_datetime
 			if (time_passed>timedelta(hours=1) or (time_passed>timedelta(minutes=30) and session.session_tutor.tutor_type=="Contract")):
+				session_transaction = Transaction.objects.get(involved_session=session)
+
+				# mark session as ended
 				session.state='ended'
-				session_transaction = session.transaction
-				session_transaction.state = 'completed'
+				session.save()
 
 				# add tutor rate to tutor wallet
 				tut = session.session_tutor
@@ -46,13 +53,15 @@ class End_Session(CronJobBase):
 
 				# add 5% to myTutor wallet
 				admin = User.objects.get(username='admin')
-				myTutor_wallet = admin.wallet
+				myTutor_wallet = admin.tutor.wallet
 				myTutor_wallet.amount += (session_transaction.amount - tut.hourly_rate)
 				myTutor_wallet.save()
 
-				session.save()		
-				session_transaction.save()		
-				emailGateway('session_end', [session.session_student,tut], {"session_datetime":session.session_datetime,"link":request.get_host()+"/main/submitReviews/"+session.id})
+				# mark transaction as completed
+				session_transaction.state = 'completed'
+				session_transaction.save()
+
+				emailGateway('session_end', [session.session_student,tut], session)
 				emailGateway('transaction_received', [session.session_student, tut], session)
 
 class New_Day_Schedule(CronJobBase):
