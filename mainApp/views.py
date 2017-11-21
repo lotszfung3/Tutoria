@@ -19,8 +19,9 @@ def editAccountDetail(request):
         request.user.username = request.POST['Name']
         request.user.email = request.POST['email']
         request.user.student.phoneNumber= request.POST['phoneNumber']
-        imagePath=uploadImage(request.FILES['newImage'],request.user.id)
         request.user.student.save()
+        imagePath=uploadImage(request.FILES['newImage'],request.user.id)
+        request.user.save()
         if(hasattr(request.user,'tutor')):
             this_user = request.user.tutor
             this_user.user.username = request.POST['Name']
@@ -34,8 +35,14 @@ def editAccountDetail(request):
             this_user.save()
         return HttpResponseRedirect('/main/viewAccountDetail')
     else:
-        this_user = request.user.student
-        return render(request,'mainApp/editAccountDetail_student.html',{'this_user':this_user})
+        #this_user = request.user.student
+        #return render(request,'mainApp/editAccountDetail_student.html',{'this_user':this_user})
+        if(hasattr(request.user,'tutor')):
+            this_user = request.user.tutor
+            return render(request,'mainApp/editAccountDetail_tutor.html',{'this_user':this_user})
+        else:
+            this_user = request.user.student
+            return render(request,'mainApp/editAccountDetail_student.html',{'this_user':this_user})
 
 #list of tutors with requirement in side request.GET
 @login_required

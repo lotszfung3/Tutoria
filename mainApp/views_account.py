@@ -126,8 +126,14 @@ def manageWallet(request):
 		return HttpResponse(mes)
 @login_required
 def viewAccountDetail(request):
-	this_user = request.user.student
-	return render(request, 'mainApp/viewAccountDetail_student.html', {'this_user': this_user})
+	#this_user = request.user.student
+	#return render(request, 'mainApp/viewAccountDetail_student.html', {'this_user': this_user})
+    if(hasattr(request.user,'tutor')):
+        this_user = request.user.tutor
+        return render(request, 'mainApp/viewAccountDetail_tutor.html', {'this_user': this_user})
+    else:
+        this_user = request.user.student
+        return render(request, 'mainApp/viewAccountDetail_student.html', {'this_user': this_user})
 
 @login_required
 def viewTransaction(request):

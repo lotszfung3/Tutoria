@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="ui segment">
-<form class="ui form" action="editAccountDetail" method="post">{% csrf_token %}
+<form class="ui form" action="editAccountDetail" method="post" enctype="multipart/form-data">{% csrf_token %}
     <div class="field">
         <label>Name</label>
         <input type="text" name="Name" placeholder="Name" value={{this_user.user.username}}>
@@ -23,7 +23,9 @@
     </div>
     <div class="field">
         <label>Teaching Course Code</label>
-        <input type="text" name="subject_code" placeholder="subject_code" value={{this_user.subject_code}}>
+        <input type="text" name="subject_code" placeholder="subject_code" value={% for code in this_user.teach_course_code.all %}
+        {{code}}
+        {% endfor %}>
     </div>
     <div class="field">
         <label>Subject Tag</label>
@@ -34,12 +36,13 @@
         <input type="text" name="hourly_rate" placeholder="hourly_rate" value={{this_user.hourly_rate}}>
     </div>
     <div>
-        <textarea name="introduction" placeholder="introduction" value={{this_user.introduction}}></textarea>
+        <label>Introduction</label>
+        <textarea name="introduction" placeholder="introduction">{{this_user.introduction}}</textarea>
     </div>
     <div class="field"> 
         <label>Select image to upload:</label>
-        <input type="file" name="fileToUpload" id="fileToUpload"><p></p>
-        <input type="submit" value="Upload Image" name="submit">
+        <!--<input type="file" name="fileToUpload" id="fileToUpload"><p></p>-->
+        <input type="file" name="newImage" accept="image/*"/>
     </div>
     <p></p>
     <button class="ui button" type="submit">Submit</button>

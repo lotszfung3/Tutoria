@@ -11,15 +11,68 @@
 <img src="{% static "" %}{{this_user.photo_url}}"/ alt="{{this_user.photo_url}}" height="150" width="150">
 
 
-<p>     Name: {{this_user}}<br>
+<!--<p>     Name: {{this_user}}<br>
         User Name: {{this_user.user.username}}<br>
         Phone Number: {{this_user.phoneNumber}}<br>
         Email: {{this_user.user.email}}<br>
         University: {{this_user.university}}<br>
-        Teaching Course Code: {{this_user.subject_code}}<br>
+        Teaching Course Code: 
+        {% for code in this_user.teach_course_code.all %}
+        {{code}}<br>
+        {% endfor %}
         Subject Tag: {{this_user.subject_tag}}<br>
         Hourly Rate: {{this_user.hourly_rate}}<br>
         Introduction: {{this_user.introduction}}<br>
         Average Review Score: {{this_user.avg_review}}<br>
-</p>
+</p>-->
+<div class="ui segment">
+    <form class="ui form" action="editAccountDetail" method="post">{% csrf_token %}
+        <div class="field">
+            <label>Name</label>
+            <input type="text" name="Name" placeholder="Name" value={{this_user.user.username}} disabled>
+        </div>
+        <div class="field">
+            <label>Phone Number</label>
+            <input type="text" name="phoneNumber" placeholder="Phone Number" value={{this_user.phoneNumber}} disabled>
+        </div>
+        <div class="field">
+            <label>Email</label>
+            <input type="text" name="email" placeholder="email" value={{this_user.user.email}} disabled>
+        </div>
+        
+        <div class="field">
+            <label>Tutor Type</label>
+            <input type="text" name="tutor_type" placeholder="tutor_type" value={{this_user.tutor_type}} disabled>
+        </div>
+        
+        <div class="field">
+            <label>University</label>
+            <input type="text" name="university" placeholder="university" value={{this_user.university}} disabled>
+        </div>
+        <div class="field">
+            <label>Teaching Course Code</label>
+            <input type="text" name="subject_code" placeholder="subject_code" value={% for code in this_user.teach_course_code.all %}
+            {{code}}
+            {% endfor %} disabled>
+        </div>
+        <div class="field">
+            <label>Subject Tag</label>
+            <input type="text" name="subject_tag" placeholder="subject_tag" value={{this_user.subject_tag}} disabled>
+        </div>
+        <div class="field">
+            <label>Hourly Rate</label>
+            <input type="text" name="hourly_rate" placeholder="hourly_rate" value={{this_user.hourly_rate}} disabled>
+        </div>
+        <div>
+            <label>Introduction</label>
+            <textarea name="introduction" placeholder="introduction" disabled>{{this_user.introduction}}</textarea>
+        </div>
+        <div>
+            <label>Average Review Score</label>
+            <input type="text" name="avgReviewScore" placeholder="avgReviewScore" value={{this_user.avg_review}} disabled>
+        </div>
+    </form>
+</div>
+<p></p>
+    
 {% endblock %}

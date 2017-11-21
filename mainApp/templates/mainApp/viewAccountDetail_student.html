@@ -11,9 +11,28 @@
 <img src="{% static "" %}{{this_user.photo_url}}"/ alt="{{this_user.photo_url}}" height="150" width="150">
 
 
-<p>     Name: {{this_user}}<br>
+<!--<p>     Name: {{this_user}}<br disabled>
         User Name: {{this_user.user.username}}<br>
         Phone Number: {{this_user.phoneNumber}}<br>
         Email: {{this_user.user.email}}<br>
-</p>
+</p>-->
+
+<div class="ui segment">
+<form class="ui form" action="editAccountDetail" method="post" enctype="multipart/form-data">{% csrf_token %}
+    <div class="field">
+        <label>Name</label>
+        <input type="text" name="Name" placeholder="Name" value={{this_user.user.username}} disabled>
+    </div>
+    <div class="field">
+        <label>Phone Number</label>
+        <input type="text" name="phoneNumber" placeholder="Phone Number" value={{this_user.phoneNumber}} disabled>
+    </div>
+    <div class="field">
+        <label>Email</label>
+        <input type="text" name="email" placeholder="email" value={{this_user.user.email}} disabled>
+    </div>
+    <p></p>
+</form>
+</div>
+
 {% endblock %}
