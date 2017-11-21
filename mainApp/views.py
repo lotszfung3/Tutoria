@@ -231,9 +231,18 @@ def sessionCancelled(request, session_ID):
 @login_required
 def submitReviews(request, session_ID):
 	this_session = Session.objects.get(id=session_ID)
+	this_student = request.user.student
+
+	if (this_session.session_student.id != this_student.id):
+		messages.info(request, 'You do not have permission to review this session')
+		return HttpResponseRedirect('/main/upcomingSessions')
+
+	elif this_session.state != 'ended':
+		messages.info(request, 'This session has not ended yet')
+		return HttpResponseRedirect('/main/upcomingSessions')
 	
-	if this_session.review_state=="empty":
-		context = {'student_sessions': student_sessions, 'this_student': this_student}
+	elif this_session.review_state=='empty':
+		context = {'this_session': this_session,}
 		return render(request,'mainApp/review/submitReviews.html',context)
 
 	else :
@@ -245,19 +254,28 @@ def submitReviews(request, session_ID):
 
 @login_required
 def reviewSubmitted(request):
-	session_ID=request.GET["session_ID"]
+	session_ID = request.POST["sessionID"]
 	this_session = Session.objects.get(id=session_ID)
 
-	#get review info
-	rating = request.POST['rating']
-	comment = request.POST['comment']
+	student_ID = request.POST['studentID']
+	student = Student.objects.get(id=student_ID)
+
 	tut = this_session.session_tutor
 
+	#get review info
+	anonymous_answer = request.POST['is_anonymous']
+	rating = request.POST['rating']
+	comment = request.POST['comment']
+	
+	if anonymous_answer=="Y":
+		is_anonymous=True
+	else:
+		is_anonymous=False
 	#create new review
-	new_review= Review(stars=int(rating), comment = comment, written_for=tut, involved_session=this_session, course_code="COMP3297", state="completed")
+	new_review = Review(stars=int(rating), anonymous=is_anonymous,comment = comment, for_tutor=tut, written_student= student,involved_session=this_session, course_code="COMP3297", state="completed")
 	new_review.save()
 
-	this_session.review_state="complete"
+	this_session.review_state='complete'
 	this_session.save()
 
 	return render(request,'mainApp/review/reviewSubmitted.html')

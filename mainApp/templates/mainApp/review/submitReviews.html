@@ -3,27 +3,37 @@
 {% block title %}Submit Review{% endblock %}
 
 {% block content %}
-<center>
-	<h3>Session ID: <p>{{this_session}}</p></h3>
-	<h3>Tutor: <p>{{session_tutor}}</p></h3>
-	<h3>Date : <p>{{session_time}}</p></h3>
-	<form class="ui form" action="/main/reviewSubmitted?session_ID={{this_session}}" method="post">
-		<div class="field">
-    		<label>Please rate the quality of your session on a scale from 0-5: </label>
-    		<select name="rating">
-  				<option value="0">0</option>
-  				<option value="1">1</option>
-  				<option value="2">2</option>
-  				<option value="3">3</option>
-  				<option value="4">4</option>
-  				<option value="5">5</option>
-			</select>
-		</div>
-		<textarea name="comment" rows="10" cols="30">
-		Please enter any comments you have here
+
+<h3>Session ID: {{this_session}}</h3>
+<h3>Tutor: {{this_session.session_tutor}}</h3>
+<h3>Session Date : {{this_session.session_datetime}}</h3>
+<form class="ui form" action="/main/reviewSubmitted" method="post">{% csrf_token %}
+	<div class="field">
+		<label>Please rate the quality of this session on a scale from 0-5: </label>
+		<select name="rating">
+				<option value="0">0</option>
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
+		</select>
+	</div>
+	<br>
+	<div class="field">
+		<textarea name="comment" rows="10" cols="30">Please enter any comments you have here
 		</textarea>
-		<div class="">
-		<button class="ui button" type="submit">Submit</button>
-	</form>
-</center>
+	</div>
+	<br>
+	<div class="field">
+		<div class="ui checkbox">
+			<input type="checkbox" name="is_anonymous" tabindex="0" value="Y"> 
+			<label> Please check this box if you would like this review to be submitted anonymously.</label>
+		</div>
+	</div>
+	<input type="hidden" name="sessionID" value="{{this_session.id}}">
+	<input type="hidden" name="studentID" value="{{this_session.session_student.id}}">
+	<button class="ui button" type="submit">Submit</button>
+</form>
+
 {% endblock %}

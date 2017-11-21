@@ -140,14 +140,14 @@ class Schedule(models.Model):
 class Review(models.Model):
 	stars=models.IntegerField(default=3)
 	comment=models.CharField(max_length=200)
-	involved_ssession=models.OneToOneField(Session)
+	involved_session=models.OneToOneField(Session,null=True)
 	written_student=models.ForeignKey(Student)
 	for_tutor=models.ForeignKey(Tutor)
 	written_date=models.DateTimeField(auto_now_add=True)
 	course_code=models.CharField(max_length=10)
 	state=models.CharField(max_length=10,default='empty')#completed
 	def __str__ (self):
-		return self.id
+		return str(self.involved_session)
 
 
 class Coupon(models.Model):
