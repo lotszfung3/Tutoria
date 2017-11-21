@@ -34,20 +34,20 @@ class End_Session(CronJobBase):
 		all_sessions = Session.objects.all()
 		for session in all_sessions:
 			time_passed=now-session.session_datetime
-			if (time_passed>timedelta(hours=1) || (time_passed>timedelta(minutes=30) && session.session_tutor.tutor_type=="Contract")):
+			tut = session.session_tutor
+			if (((time_passed>timedelta(minutes=30)) & (tut.tutor_type=='Contract'))) | (time_passed > timedelta(hours=1)):
 				session.state='ended'
 				session_transaction = session.transaction
 				session_transaction.state = 'completed'
 
 				# add tutor rate to tutor wallet
-				tut = session.session_tutor
 				tut_wallet = tut.wallet
 				tut_wallet.amount += tut.hourly_rate
 				tut_wallet.save()
 
 				# add 5% to myTutor wallet
 				admin = User.objects.get(username='admin')
-				myTutor_wallet = admin.wallet
+				myTutor_wallet = admin.tutor.wallet
 				myTutor_wallet.amount += (session_transaction.amount - tut.hourly_rate)
 				myTutor_wallet.save()
 

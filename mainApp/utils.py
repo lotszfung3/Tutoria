@@ -28,8 +28,8 @@ def uploadImage(file,user_id):
 	
 def emailGateway(email_type,recipients,info):#recipent:[student name, tutor name]
     if(email_type=='session_cancel'):
-        print(email_format.format(" Session has been cancelled",recipients[0],"The session at {} has been cancelled.\n The amount {} has been refunded to your wallet.".format(info.datetime,info.amount)))
-        print(email_format.format(" Session has been cancelled",recipients[1],"The session at {} has been cancelled.".format(info.datetime)))
+        print(email_format.format(" Session has been cancelled",recipients[0],"The session at {} has been cancelled.\n The amount {} has been refunded to your wallet.".format(info.session_datetime,info.session_tutor.getStudentRate())))
+        print(email_format.format(" Session has been cancelled",recipients[1],"The session at {} has been cancelled.".format(info.session_datetime)))
     elif(email_type=='session_book'):
         print(email_format.format(" Session has been booked",recipients[0],"The session at {} has been booked.\n The amount {} including commission fee {} has been deducted from your wallet.".format(info.datetime,info.amount,info.commission)))
         print(email_format.format(" Session has been booked",recipients[1],"The session at {} has been booked.".format(info.datetime)))

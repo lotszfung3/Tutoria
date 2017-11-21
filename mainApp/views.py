@@ -182,7 +182,7 @@ def cancelSession(request, session_ID):
 		return HttpResponseRedirect('/main/upcomingSessions')
 	
 	elif(this_session.state=='cancelled'):#cancelled
-		messages.info(request,'This session have been cancelled')
+		messages.info(request,'This session has been cancelled')
 		return HttpResponseRedirect('/main/upcomingSessions')
 	
 	elif(this_session.state=='locked'):
@@ -203,9 +203,11 @@ def sessionCancelled(request, session_ID):
 
 	if (toCancel=='N'):
 		return HttpResponseRedirect('/main/upcomingSessions')
+
 	elif (this_session.state=='locked'):
 		messages.info(request, 'You cannot cancel sessions that are starting so soon!')
 		return HttpResponseRedirect('/main/upcomingSessions')
+
 	else:
 		this_session.state='cancelled'
 		this_session.save()
@@ -226,14 +228,15 @@ def sessionCancelled(request, session_ID):
 
 		this_session.session_student.save()
 
+		emailGateway('session_cancel', [this_student, temp_tutor], this_session)
 		return render(request,'mainApp/cancel/sessionCancelled.html')
 
 @login_required
 def submitReviews(request, session_ID):
 	this_session = Session.objects.get(id=session_ID)
 	
-	if this_session.review_state=="empty":
-		context = {'student_sessions': student_sessions, 'this_student': this_student}
+	if this_session.review_state == 'empty':
+		context = {'this_session': this_session}
 		return render(request,'mainApp/review/submitReviews.html',context)
 
 	else :
@@ -241,17 +244,17 @@ def submitReviews(request, session_ID):
 		return HttpResponseRedirect('/main/upcomingSessions')
 
 
-	# return list of ended sessions
-
 @login_required
 def reviewSubmitted(request):
-	session_ID=request.GET["session_ID"]
+	session_ID=request.POST["session_ID"]
 	this_session = Session.objects.get(id=session_ID)
+	tut = this_session.session_tutor
 
 	#get review info
+	sessionID = request.POST['sessionID']
 	rating = request.POST['rating']
 	comment = request.POST['comment']
-	tut = this_session.session_tutor
+	is_anonymous = request.POST['is_anonymous']
 
 	#create new review
 	new_review= Review(stars=int(rating), comment = comment, written_for=tut, involved_session=this_session, course_code="COMP3297", state="completed")
