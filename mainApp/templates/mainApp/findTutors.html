@@ -18,12 +18,12 @@
     <input type="text" name="tag" placeholder="Subject Tags">
   </div>
   <div class="field">
-    <label>Price higher than</label>
-    <input type="number" name="lprice" placeholder="Lowest Price">
+    <label>Hourly rate higher than</label>
+    <input type="number" name="lprice" placeholder="Lowest Hourly Rate">
   </div>
   <div class="field">
-    <label>Price lower than</label>
-    <input type="number" name="hprice" placeholder="tag">
+    <label>Hourly rate lower than</label>
+    <input type="number" name="hprice" placeholder="Hightest Hourly Rate">
   </div>
   <div class="field">
     <label>Contract Type</label>
@@ -34,19 +34,22 @@
     </select>
   </div>
   <div class="field">
+    <label>Sort By</label>
+    <select name="sort">
+      <option value="AscP">Ascending Hourly Rate</option>
+      <option value="DscP">Descending Hourly Rate</option>
+      <option value="AscS">Ascending Rating</option>
+      <option value="DscS">Descending Rating</option>
+    </select>
+  </div>
+  <div class="field">
     <div class="ui checkbox">
       <input type="checkbox" name="crit" tabindex="0">
       <label>Only show tutors with available timeslots</label>
     </div>
   </div>
-  <div class="field">
-    <div class="ui checkbox">
-      <input type="checkbox" tabindex="0">
-      <label>I agree to the Terms and Conditions</label>
-    </div>
-  </div>
   <button class="ui button" type="submit">Submit</button>
 </form>
-	</div>
+  </div>
 {% endblock %}
 

@@ -13,11 +13,7 @@
 	<tr>
 		<td class="twelve wide">
 			<h2>Tutor Information</h2>
-			<p>	Tutor Name: {{tutor.name}}<br>
-				University: {{tutor.university}}<br>
-				Rating: {% with tutor.avg_review as ave %}{% if ave < 0 %}not available{% else %}{% for i in range5 %}{% if i < ave %}★{% else	 %}☆{% endif %}{% endfor %}{% endif %}{% endwith %}<br>
-				Hourly Rate: {{tutor.hourly_rate}}
-			</p>
+			<p>	{{tutor_info|safe}} </p>
 		</td>
 		<td class="four wide">
 				<div class="ui segment"><img src="{% static "" %}{{tutor.photo_url}}"/ alt="{{tutor.photo_url}}" height="150" width="150"></div>
@@ -35,6 +31,15 @@
 		<td colspan="2">
 			<h2>Availability</h2>
 			<p id="schedule"></p>
+		</td>
+	</tr>
+
+	<tr>
+		<td colspan="2">
+			<h2>Students Review</h2>
+			<table class="ui structured table">
+				{{reviews_html|safe}}
+			</table>
 		</td>
 	</tr>
 
