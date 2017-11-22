@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .models import User,Student,Tutor,SubjectCode,Wallet,Transaction
+from .models import User,Student,Tutor,SubjectCode,Wallet,Transaction,Schedule
 from datetime import datetime,date,timedelta,timezone
 from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import HttpResponseRedirect
@@ -142,3 +142,24 @@ def viewTransaction(request):
 	wallet=request.user.student.wallet
 	return render(request, 'mainApp/viewTransaction.html', {'name': name,'transactions':wallet.transactions.filter(create_date__lte=datetime.now(timezone.utc)+timedelta(days=30)).order_by("-create_date") if wallet.transactions.count()>0 else None})
 		
+@login_required
+def editUnavailableSession(request):
+	tutor = Tutor.objects.get(id=request.user.tutor.id)
+	schedule = Schedule.objects.get(owned_tutor=tutor)
+
+	return render(request,'mainApp/editUnavailableSession.html',{'tutor': tutor, 'date': str(date.today()), 'schedule': str(schedule.available_timeslot)})
+
+def changeSession(request):
+	if(request.method=='GET'):
+		tutor = Tutor.objects.get(id=request.user.tutor.id)
+		schedule = Schedule.objects.get(owned_tutor=tutor)
+		slot = int(request.GET['sessionID'])
+
+		if(str(schedule.available_timeslot)[slot] == 'a'):
+			schedule.available_timeslot = schedule.available_timeslot[:slot] + "c" + schedule.available_timeslot[(slot+1):]
+			schedule.save()
+		elif(str(schedule.available_timeslot)[slot] == 'c'):
+			schedule.available_timeslot = schedule.available_timeslot[:slot] + "a" + schedule.available_timeslot[(slot+1):]
+			schedule.save()
+
+	return render(request,'mainApp/editUnavailableSession.html',{'tutor': tutor, 'date': str(date.today()), 'schedule': str(schedule.available_timeslot)})

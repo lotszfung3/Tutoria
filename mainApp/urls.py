@@ -24,5 +24,6 @@ urlpatterns = [
     url(r'^viewAccountDetail$',views_account.viewAccountDetail,name='viewAccountDetail'),
 	url(r'^editAccountDetail$',views.editAccountDetail,name='editAccountDetail'),
 	url(r'^viewTransaction$',views_account.viewTransaction,name='viewTransaction'),
-    url(r'^editSession$',views_account.editUnavailableSession,name='editUnavailableSession')
+    url(r'^editSession$',views_account.editUnavailableSession,name='editUnavailableSession'),
+    url(r'^changeSession$',views_account.changeSession,name='changeSession')
 ]
