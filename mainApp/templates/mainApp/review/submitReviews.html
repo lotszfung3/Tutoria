@@ -9,7 +9,7 @@
 <h3>Session Date : {{this_session.session_datetime}}</h3>
 <form class="ui form" action="/main/reviewSubmitted" method="post">{% csrf_token %}
 	<div class="field">
-		<label>Please rate the quality of this session on a scale from 0-5: </label>
+		<label>Please rate the quality of this session on a scale from 0-6: </label>
 		<select name="rating">
 				<option value="0">0</option>
 				<option value="1">1</option>
@@ -22,11 +22,13 @@
 	</div>
 	<br>
 	<div class="field">
-		<textarea name="comment" rows="10" cols="30">Please enter any comments you have here
-		</textarea>
+        <label>Comment</label>
+		<textarea name="comment" rows="10" cols="30" placeholder="Please enter any comments you have here"></textarea>
 	</div>
 	<br>
+        
 	<div class="field">
+
 		<div class="ui checkbox">
 			<input type="checkbox" name="is_anonymous" tabindex="0" value="Y"> 
 			<label> Check this box to submit review anonymously.</label>

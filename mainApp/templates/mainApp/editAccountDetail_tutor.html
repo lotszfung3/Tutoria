@@ -21,19 +21,44 @@
         <label>University</label>
         <input type="text" name="university" placeholder="university" value={{this_user.university}}>
     </div>
+
+	<div class="wide field">	
+	<label>Subect code</label>
+<select name="subject" multiple="" class="ui fluid dropdown">
+<option value="">Subject you are teaching</option>
+	{% for code in subject_list %}
+    {% if code in teach_course_code %}
+    
+    <option value="{{code.subject_code}}" selected>{{code.subject_code}}</option>
+    {% else %}
+    <option value="{{code.subject_code}}" >{{code.subject_code}}</option>
+    {% endif %}
+	{% endfor %}
+</select>
+</div>
+      <div class="inline fields">
+    <label>Do you want your profile be activated?</label>
     <div class="field">
-        <label>Teaching Course Code</label>
-        <input type="text" name="subject_code" placeholder="subject_code" value={% for code in this_user.teach_course_code.all %}
-        {{code}}
-        {% endfor %}>
+      <div class="ui radio checkbox">
+        <input type="radio" name="activated" checked="checked" value="y">
+        <label>Yes</label>
+      </div>
     </div>
+    <div class="field">
+      <div class="ui radio checkbox">
+        <input type="radio" name="type" value="n">
+        <label>No</label>
+      </div>
+    </div>
+		</div>
+	
     <div class="field">
         <label>Subject Tag</label>
         <input type="text" name="subject_tag" placeholder="subject_tag" value={{this_user.subject_tag}}>
     </div>
     <div class="field">
         <label>Hourly Rate</label>
-        <input type="text" name="hourly_rate" placeholder="hourly_rate" value={{this_user.hourly_rate}}>
+        <input type="text" name="hourly_rate" placeholder="hourly_rate" value={{this_user.hourly_rate}} {% if this_user.tutor_type == 'Contract' %}disabled {% endif %}>
     </div>
     <div>
         <label>Introduction</label>
@@ -42,10 +67,16 @@
     <div class="field"> 
         <label>Select image to upload:</label>
         <!--<input type="file" name="fileToUpload" id="fileToUpload"><p></p>-->
-        <input type="file" name="newImage" accept="image/*" required/>
+        <input type="file" name="newImage" accept="image/*"/>
     </div>
+	
+	
+	
     <p></p>
     <button class="ui button" type="submit">Submit</button>
 </form>
 </div>
+<script>
+$('.ui.dropdown').dropdown();
+</script>
 {% endblock %}

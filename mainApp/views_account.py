@@ -14,7 +14,8 @@ from django.contrib.auth.password_validation import validate_password
 message_dict={"l_logout":"You have logged out.","l_fail":"Your username or your password doesn't match",
 			 "l_register":"You have registered your account sucessfully","l_reset":"You have reset your password",
 			 "r_pw":"The passwrod is too weak","l_fp":"Please check your registered email to reset password",
-			 "l_fpfail":"The username or email doesn't belongs to any user","rp_fail":"There is something wrong"}
+			 "l_fpfail":"The username or email doesn't belongs to any user","lrp_fail":"The two password doesn't match",
+             "rp_fail":"Your username is not coorrect"}
 
 @csrf_exempt
 def test(request):
@@ -36,7 +37,7 @@ def login_h(request):
 	if request.method == 'GET':
 		if(request.user.is_authenticated()):
 			return HttpResponseRedirect('/main/findTutors')
-		return render(request, 'mainApp/login.html',{'message':message_dict[request.GET['message']]} if 'message' in request.GET and request.GET['message'] in message_dict else None)
+		return render(request, 'mainApp/account/login.html',{'message':message_dict[request.GET['message']]} if 'message' in request.GET and request.GET['message'] in message_dict else None)
 	elif request.method == 'POST':
 		if('username' not in request.POST or 'password' not in request.POST):
 			return HttpResponseRedirect('./login?message=l_fail')
@@ -53,7 +54,7 @@ def register(request):
 	if request.method == 'GET':
 		if(request.user.is_authenticated()):
 			return HttpResponseRedirect('/main/findTutors')
-		return render(request,'mainApp/register.html',{"subject_list":SubjectCode.getCodeList(),'message':message_dict[request.GET['message']] if 'message' in request.GET and request.GET['message'] in message_dict else None})
+		return render(request,'mainApp/account/register.html',{"subject_list":SubjectCode.getCodeList(),'message':message_dict[request.GET['message']] if 'message' in request.GET and request.GET['message'] in message_dict else None})
 	elif request.method == 'POST':
 		try:#test password strength
 			validate_password(request.POST['password'])
@@ -79,7 +80,7 @@ def register(request):
 		return HttpResponseRedirect('/main/login?message=l_register')
 def forgetPw(request):
 	if request.method=='GET':
-		return render(request, 'mainApp/forgetPw.html')
+		return render(request, 'mainApp/account/forgetPw.html')
 	elif request.method == "POST":
 		if(request.POST['username']!=""):
 			username=request.POST['username']
@@ -99,7 +100,7 @@ def forgetPw(request):
 #form for finding tutors
 def retrievePw(request):
 	if request.method=='GET':
-		return render(request,'mainApp/retrievePw.html',{'message':message_dict[request.GET['message']]} if 'message' in request.GET and request.GET['message'] in message_dict else None)
+		return render(request,'mainApp/account/retrievePw.html',{'message':message_dict[request.GET['message']]} if 'message' in request.GET and request.GET['message'] in message_dict else None)
 	elif request.method=='POST':
 		token=request.GET["token"]
 		if(request.POST["password"]==request.POST["password1"]):
@@ -112,7 +113,7 @@ def retrievePw(request):
 			except:
 				return HttpResponseRedirect('/main/retrievePw?message=rp_fail&token={}'.format(token))			
 		else:
-			return HttpResponseRedirect('/main/login?message=rp_fail&token={}'.format(token))
+			return HttpResponseRedirect('/main/login?message=lrp_fail')
 @csrf_exempt
 @login_required
 def manageWallet(request):
@@ -130,7 +131,7 @@ def viewAccountDetail(request):
 	#return render(request, 'mainApp/viewAccountDetail_student.html', {'this_user': this_user})
     if(hasattr(request.user,'tutor')):
         this_user = request.user.tutor
-        return render(request, 'mainApp/viewAccountDetail_tutor.html', {'this_user': this_user})
+        return render(request, 'mainApp/viewAccountDetail_tutor.html', {'this_user': this_user,"tut_reviews":this_user.review_set.all()})
     else:
         this_user = request.user.student
         return render(request, 'mainApp/viewAccountDetail_student.html', {'this_user': this_user})

@@ -10,21 +10,6 @@
 
 <img src="{% static "" %}{{this_user.photo_url}}"/ alt="{{this_user.photo_url}}" height="150" width="150">
 
-
-<!--<p>     Name: {{this_user}}<br>
-        User Name: {{this_user.user.username}}<br>
-        Phone Number: {{this_user.phoneNumber}}<br>
-        Email: {{this_user.user.email}}<br>
-        University: {{this_user.university}}<br>
-        Teaching Course Code: 
-        {% for code in this_user.teach_course_code.all %}
-        {{code}}<br>
-        {% endfor %}
-        Subject Tag: {{this_user.subject_tag}}<br>
-        Hourly Rate: {{this_user.hourly_rate}}<br>
-        Introduction: {{this_user.introduction}}<br>
-        Average Review Score: {{this_user.avg_review}}<br>
-</p>-->
 <div class="ui segment">
     <form class="ui form" action="editAccountDetail" method="post">{% csrf_token %}
         <div class="field">
@@ -71,6 +56,44 @@
             <label>Average Review Score</label>
             <input type="text" name="avgReviewScore" placeholder="avgReviewScore" value={{this_user.avg_review}} disabled>
         </div>
+		<p></p>
+		{% if tut_reviews %}
+		<label>Review List</label>
+		<table cellspacing="20" class="ui celled table">
+	<tr>
+		<th>
+			Review student:
+		</th>
+		<th>
+			Review Date:
+		</th>
+		<th>
+			Number of stars:
+		</th>
+		<th>
+			Comment:
+		</th>
+
+	</tr>
+	{% for reviews in tut_reviews %}
+	<tr>
+		<td>
+			<p>{{reviews.written_student}}</p>
+		</td>
+		<td>
+			<p>{{reviews.written_date}}</p>
+		</td>
+		<td>
+			<p>{{reviews.stars}}</p>
+		</td>
+		<td>
+			<p>{{reviews.comment}}</p>
+		</td>
+		
+	</tr>
+	{% endfor %}
+</table>
+		{% endif %}
     </form>
 </div>
 <p></p>

@@ -31,7 +31,7 @@
 			<p>{{trans.create_date}}</p>
 		</td>
 		<td>
-			<p>{% if trans.session %}Session payment
+			<p>{% if trans.involved_session %}Session payment
 			{% elif trans.amount > 0 %}Deposit
 				{% else %} Withdrawl{% endif %}</p>
 		</td>
@@ -41,19 +41,20 @@
 		<td>
 			<p>{{trans.state}}</p>
 		</td>
-		{% if trans.amount > 0 %}
-		<td>
-			<p>{{trans.payment_tutor}}</p>
-		</td>
+		
+		{% if trans.involved_session or trans.amount < 0 %}
 		<td>
 			<p>{{trans.payment_student}}</p>
+		</td>
+		<td>
+			<p>{{trans.payment_tutor}}</p>
 		</td>
 				{% else %} 
 		<td>
-			<p>{{trans.payment_student}}</p>
+			<p>{{trans.payment_tutor}}</p>
 		</td>
 		<td>
-			<p>{{trans.payment_tutor}}</p>
+			<p>{{trans.payment_student}}</p>
 		</td>
 		
 		{% endif %}

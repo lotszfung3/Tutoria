@@ -32,6 +32,11 @@ ${{request.user.student.wallet.amount}}
       $("#amount").html("$"+a)});
   });
  $("#dedVal").click(function(){
+	 	  if(parseFloat($("#amount").html().trim().substring(1))<100)
+			  {
+				  alert("Not enough value to withdraw");
+				  return;
+			  }
     $.ajax({url:"./manageWallet?action=ded",method:"POST"}).done(function(a){
       $("#amount").html("$"+a)});
   });
