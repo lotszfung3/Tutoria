@@ -62,7 +62,7 @@ class End_Session(CronJobBase):
 				session_transaction.save()
 
 				emailGateway('session_end', [session.session_student,tut], session)
-				emailGateway('transaction_received', [session.session_student, tut], session)
+				emailGateway('transaction_received', tut, session)
 
 class New_Day_Schedule(CronJobBase):
 	RUN_AT_TIMES=['00:00']

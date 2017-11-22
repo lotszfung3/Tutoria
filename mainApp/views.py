@@ -6,7 +6,6 @@ from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from .utils import uploadImage,getSlotIdfromDateTime, emailGateway,paymentGateway
-from django.db.models import Q
 
 from django.contrib import messages
 from decimal import *
@@ -21,26 +20,34 @@ def editAccountDetail(request):
         request.user.email = request.POST['email']
         request.user.student.phoneNumber= request.POST['phoneNumber']
         request.user.student.save()
-        imagePath=uploadImage(request.FILES['newImage'],request.user.id)
+        if('newImage' in request.FILES):
+            uploadImage(request.FILES['newImage'],request.user.id)
         request.user.save()
         if(hasattr(request.user,'tutor')):
-            this_user = request.user.tutor
-            this_user.user.username = request.POST['Name']
-            this_user.user.email = request.POST['email']
-            this_user.phoneNumber= request.POST['phoneNumber']
-            this_user.university = request.POST['university']
-            this_user.subject_code = request.POST['subject_code']
-            this_user.subject_tag = request.POST['subject_tag']
-            this_user.hourly_rate = request.POST['hourly_rate']
-            this_user.introduction = request.POST['introduction']
-            this_user.save()
+            tutor = request.user.tutor
+            tutor.phoneNumber= request.POST['phoneNumber']
+            tutor.university = request.POST['university']
+            tutor.subject_tag = request.POST['subject_tag']
+            tutor.hourly_rate = request.POST['hourly_rate']
+            tutor.introduction = request.POST['introduction']
+            tutor.activated= request.POST['activated']=='y'
+            subject_list=request.POST.getlist('subject')
+            tutor.teach_course_code.clear()
+            if(isinstance(subject_list,list)):
+                for i in subject_list:
+                    tutor.teach_course_code.add(SubjectCode.objects.get(subject_code=i))
+            else:
+                tutor.teach_course_code.add(SubjectCode.objects.get(subject_code=subject_list))
+
+            tutor.save()
+            
         return HttpResponseRedirect('/main/viewAccountDetail')
     else:
         #this_user = request.user.student
         #return render(request,'mainApp/editAccountDetail_student.html',{'this_user':this_user})
         if(hasattr(request.user,'tutor')):
             this_user = request.user.tutor
-            return render(request,'mainApp/editAccountDetail_tutor.html',{'this_user':this_user})
+            return render(request,'mainApp/editAccountDetail_tutor.html',{'this_user':this_user,"subject_list":SubjectCode.getCodeList(),"teach_course_code":this_user.teach_course_code.values('subject_code')})
         else:
             this_user = request.user.student
             return render(request,'mainApp/editAccountDetail_student.html',{'this_user':this_user})
@@ -290,9 +297,10 @@ def sessionCancelled(request, session_ID):
 		#change transaction state
 		this_transaction.state='cancelled'
 		this_transaction.save()
-
-		this_session.session_student.save()
-
+		
+		#email
+		emailGateway('session_cancel',[str(this_student),str(temp_tutor)],{"datetime":this_session.session_datetime,"amount":temp_tutor.getStudentRate()})
+		
 		return render(request,'mainApp/cancel/sessionCancelled.html')
 
 @login_required
@@ -301,7 +309,7 @@ def submitReviews(request, session_ID):
 	this_student = request.user.student
 
 	if (this_session.session_student.id != this_student.id):
-		messages.info(request, 'You do not have permission to review this session')
+		messages.info(request, 'You do not have the permission to review this session')
 		return HttpResponseRedirect('/main/upcomingSessions')
 
 	elif this_session.state != 'ended':
@@ -330,11 +338,10 @@ def reviewSubmitted(request):
 	tut = this_session.session_tutor
 
 	#get review info
-	anonymous_answer = request.POST['is_anonymous']
 	rating = request.POST['rating']
 	comment = request.POST['comment']
 	
-	if anonymous_answer=="Y":
+	if "is_anonymous" in request.POST and request.POST['is_anonymous']=="Y":
 		is_anonymous=True
 	else:
 		is_anonymous=False

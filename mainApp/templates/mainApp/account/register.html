@@ -70,7 +70,7 @@
 	<div class="fields">
     <div class="ten wide field">
       <label>University</label>
-      <input class="tutor" type="text" name="uni" placeholder="University">
+      <input class="tutor" type="text" name="uni" placeholder="University" >
     </div>
     <div class="ten wide field">
       <label>Tag your Profile using '#'</label>
@@ -96,15 +96,15 @@
 	
 	<div class="fields">    
 	<div class="ten wide field">
-      <label>Hourly Rate(0 if you are contract tutor)</label>
+      <label>Hourly Rate (0 if you are contract tutor)</label>
       <input class="tutor" type="number" name="hourlyRate" pattern="[0-9]" placeholder="Hourly Rate">
     </div>
 	
 	
 <div class="ten wide field">	
 	<label>Subect code</label>
-<select name="subject" multiple="" class="ui fluid dropdown">
-<option value="">Subject you are studying</option>
+<select name="subject" multiple="" class="ui fluid dropdown tutor" >
+<option value="">Subject you are teaching</option>
 	{% for code in subject_list %}
 <option value="{{code.subject_code}}">{{code.subject_code}}</option>
 	{% endfor %}
@@ -124,10 +124,11 @@
 $('.ui.dropdown').dropdown();
 $('.ui.checkbox').checkbox({
 onChecked: function() {
-      $('.tutor').attr("required",true);
+		
+      $('.tutor').attr("required",true).attr("disabled","disabled");
     },
     onUnchecked: function() {
-      $('.tutor').removeAttr("required")
+      $('.tutor').removeAttr("required").removeAttr("disabled");
     }});
 
 </script>

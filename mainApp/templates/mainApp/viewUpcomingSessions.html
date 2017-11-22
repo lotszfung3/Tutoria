@@ -7,7 +7,10 @@
 <table cellspacing="20" class="ui celled table">
 	<tr>
 		<th>
-			Session Date
+			Session Start Time
+		</th>
+		<th>
+			Session Duration
 		</th>
 		<th>
 			Session ID
@@ -23,6 +26,10 @@
 	<tr>
 		<td>
 			<p>{{session.session_datetime}}</p>
+		</td>
+		
+		<td>
+			<p>{% if session.session_tutor.tutor_type == 'Contract' %}30 minutes {% else %} 1 hour {% endif %}</p>
 		</td>
 		<td>
 			<p>{{session.id}}</p>
