@@ -53,6 +53,7 @@ function scheduling(date, string){
 	var year = parseInt(date.slice(0,date.indexOf("-")));
 	date = date.slice(date.indexOf("-")+1);
 	//document.write(date);
+	date = dateIncrement(date,year)
 	var content = '<table class="ui celled single line table">';
 	content = content + "<thead><tr><th>" + "date" + "</th>";
 	for(var i=0;i<7;i++){

@@ -30,7 +30,7 @@ def editAccountDetail(request):
             tutor.subject_tag = request.POST['subject_tag']
             tutor.hourly_rate = request.POST['hourly_rate']
             tutor.introduction = request.POST['introduction']
-            tutor.activated= request.POST['activated']=='y'
+            tutor.activated= (request.POST['activated']=='y')
             subject_list=request.POST.getlist('subject')
             tutor.teach_course_code.clear()
             if(isinstance(subject_list,list)):
@@ -47,7 +47,13 @@ def editAccountDetail(request):
         #return render(request,'mainApp/editAccountDetail_student.html',{'this_user':this_user})
         if(hasattr(request.user,'tutor')):
             this_user = request.user.tutor
-            return render(request,'mainApp/editAccountDetail_tutor.html',{'this_user':this_user,"subject_list":SubjectCode.getCodeList(),"teach_course_code":this_user.teach_course_code.values('subject_code')})
+            if this_user.activated:
+            	activate_yes = 'checked = "yes"'
+            	activate_no = ''
+            else:
+            	activate_yes = ''
+            	activate_no = 'checked = "yes"'
+            return render(request,'mainApp/editAccountDetail_tutor.html',{'this_user':this_user,"subject_list":SubjectCode.getCodeList(),"teach_course_code":this_user.teach_course_code.values('subject_code'), "activate_yes": activate_yes, "activate_no": activate_no})
         else:
             this_user = request.user.student
             return render(request,'mainApp/editAccountDetail_student.html',{'this_user':this_user})
@@ -103,7 +109,7 @@ def tutorsList(request):
 		for tutor in tutor_all:
 			course_code_query = tutor.teach_course_code.all()
 			for course_code in course_code_query:
-				if(course_code.subject_code==course and crit):
+				if(course_code.subject_code==course):
 					tutor_list.append(tutor)
 					break;
 	else:

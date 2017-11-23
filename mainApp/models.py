@@ -125,7 +125,7 @@ class Wallet(models.Model):
 class Schedule(models.Model):
 	owned_tutor=models.OneToOneField(Tutor)
 	start_date=models.DateField(auto_now_add=True)
-	available_timeslot=models.CharField(max_length=280,default="a"*140)
+	available_timeslot=models.CharField(max_length=280,default="a"*140) #a for available, b for booked(cannot be changed by tutor), c for cancelled(by tutor)
 	@classmethod
 	def create(cls, tutor):
 		if(tutor.tutor_type=="Contract"):
