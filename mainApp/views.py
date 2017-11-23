@@ -61,6 +61,7 @@ def editAccountDetail(request):
 #list of tutors with requirement in side request.GET
 @login_required
 def tutorsList(request):
+	'''
 	tutor_query = []
 	uni = request.GET['university']
 	if(uni!=''):
@@ -87,12 +88,26 @@ def tutorsList(request):
 		tutor_query.append(Tutor.objects.filter(tutor_type='Private'))
 		
 	tutor_query.append(Tutor.objects.filter(activated=True))
+	'''
+	uni=request.GET["university"]
+	tag=request.GET["tag"]
+	lprice=request.GET["lprice"]
+	hprice=request.GET["hprice"]
+	t_type=request.GET["type"]
+	tutor_query={}
+	if request.GET["university"]!='':
+		tutor_query["university"]=request.GET['university'] 
+	if request.GET["tag"]!='':
+		tutor_query["ubject_tag__contains"]=request.GET['tag'] 
+	if request.GET["lprice"]!='':
+		tutor_query["hourly_rate__gte"]=request.GET['lprice'] 
+	if request.GET["hprice"]!='':
+		tutor_query["hourly_rate__lte"]=request.GET['hprice'] 
+	if request.GET["type"]!='':
+		tutor_query["university"]='Contract' if request.GET['type']=='c' else 'Private' 
 
-	tutor_all = Tutor.objects.all()
-
-	for i in range(len(tutor_query)):
-		tutor_all = tutor_all.intersection(tutor_query[i])	
-
+	tutor_all = Tutor.objects.filter(**tutor_query)
+	#TODO: exclude yourself
 	sort = request.GET['sort']
 	if(sort=='AscP'):
 		tutor_all = tutor_all.order_by('hourly_rate')
