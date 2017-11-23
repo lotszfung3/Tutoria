@@ -176,6 +176,9 @@ def confirmPayment(request):
 	student = Student.objects.get(id=request.user.student.id)
 	student_wallet = Wallet.objects.get(student=student.id)
 
+	if sameTutorBooked(student,tutor,str(date.today()+timedelta(days=(slot-slot%10)/10))):
+		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'You have already booked another session of this tutor on this day, please try again.'})
+
 	if(student.user==tutor.user):
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'You cannot register your own slot! Please choose another tutor.'})
 
@@ -208,6 +211,9 @@ def bookSession(request):
 	slot = int(request.POST['slot'])
 	student = Student.objects.get(id=request.user.student.id)
 
+	if sameTutorBooked(student,tutor,date):
+		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'You have already booked another session of this tutor on this day, please try again.'})
+
 	coupon = request.POST['coupon']
 	if coupon == '':
 		couponValid = 'None'
@@ -234,19 +240,21 @@ def bookSession(request):
 			time_str = str(int((time-1)/2+9)) + ":30:00"
 
 	if(str(schedule.available_timeslot)[slot]=='a'):
-		#saving the wallet amount
+		#saving the wallet amount and create session
 		student_wallet = Wallet.objects.get(student=student.id)
 		if couponValid == 'False':
 			student_wallet.amount = student_wallet.amount - tutor.getStudentRate()
+			session = Session(session_tutor=tutor, session_datetime=date+" "+time_str, session_student=student, coupon_used=False)
 		else:
 			student_wallet.amount = student_wallet.amount - tutor.hourly_rate
+			session = Session(session_tutor=tutor, session_datetime=date+" "+time_str, session_student=student, coupon_used=True)
 		student_wallet.save()
+		session.save()
 
-		#saving the changed schedule and create session
+		#saving the changed schedule
 		schedule.available_timeslot = schedule.available_timeslot[:slot] + "b" + schedule.available_timeslot[(slot+1):]
 		schedule.save()
-		session = Session(session_tutor=tutor, session_datetime=date+" "+time_str, session_student=student, coupon_used=False)
-		session.save()
+		
 
 		#saving the transaction record
 		if couponValid == 'False':
@@ -256,8 +264,12 @@ def bookSession(request):
 		new_transaction = Transaction.create(session, transAMT, student, tutor)
 		new_transaction.save()
 
+		if couponValid == 'False':
+			emailGateway('session_book',[student.user.first_name,tutor.user.first_name],{"datetime":session.session_datetime,"amount":tutor.hourly_rate, "commission": tutor.getStudentRate()})
+		else:
+			emailGateway('session_book_coupon',[student.user.first_name,tutor.user.first_name],{"datetime":session.session_datetime,"amount":tutor.hourly_rate})
+
 	else:
-		message
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'The slot you chose is not available, please choose another slot.'})
 		
 
@@ -472,8 +484,20 @@ def availableInSevenDays(tutor):
     return False
 
 
+def sameTutorBooked(student,tutor,date):
+	sessionQuery = {}
 
+	sessionQuery['session_student'] = student
+	sessionQuery['session_tutor'] = tutor
 
+	session = Session.objects.filter(**sessionQuery)
 
-
-
+	if session.exists():
+		sessionList = list(session)
+		sessionList = [session for session in sessionList if str(session.session_datetime.date()) == date]
+		if len(sessionList)!=0:
+			return True;
+		else:
+			return False;
+	else:
+		return False;

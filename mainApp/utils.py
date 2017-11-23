@@ -31,8 +31,11 @@ def emailGateway(email_type,recipients,info):#recipent:[student name, tutor name
         print(email_format.format(" Session has been cancelled",recipients[0],"Your Tutoria session at {} has been cancelled.\n The amount ${} has been refunded to your wallet.".format(info["datetime"],info["amount"])))
         print(email_format.format(" Session has been cancelled",recipients[1],"Your Tutoria session at {} has been cancelled.".format(info["datetime"])))
     elif(email_type=='session_book'):
-        print(email_format.format(" Session has been booked",recipients[0],"The session at {} has been booked.\n The amount {} including commission fee {} has been deducted from your wallet.".format(info.datetime,info.amount,info.commission)))
-        print(email_format.format(" Session has been booked",recipients[1],"The session at {} has been booked.".format(info.datetime)))
+        print(email_format.format(" Session has been booked",recipients[0],"The session at {} has been booked.\n The amount {} including commission fee {} has been deducted from your wallet.".format(info["datetime"],info["amount"],info["commission"])))
+        print(email_format.format(" Session has been booked",recipients[1],"The session at {} has been booked.".format(info["datetime"])))
+    elif(email_type=='session_book_coupon'):
+        print(email_format.format(" Session has been booked",recipients[0],"The session at {} has been booked.\n The amount {} has been deducted from your wallet.".format(info["datetime"],info["amount"])))
+        print(email_format.format(" Session has been booked",recipients[1],"The session at {} has been booked.".format(info["datetime"])))
     elif(email_type=='session_end'):
         print(email_format.format(" Session has ended",recipients[0],"The session (ID={}) at {} has ended.\n Your payment will be processed shortly.\n Please use the following link to submit a review: http://127.0.0.1:8000/main/submitReviews/{} \n".format(info.id,info.session_datetime,info.id)))
         print(email_format.format(" Session has ended",recipients[1],"The session (ID={}) at {} has ended.\n Your transaction will be processed shortly.".format(info.id,info.session_datetime)))
