@@ -95,19 +95,22 @@ def tutorsList(request):
 	hprice=request.GET["hprice"]
 	t_type=request.GET["type"]
 	tutor_query={}
-	if request.GET["university"]!='':
-		tutor_query["university"]=request.GET['university'] 
-	if request.GET["tag"]!='':
-		tutor_query["ubject_tag__contains"]=request.GET['tag'] 
-	if request.GET["lprice"]!='':
-		tutor_query["hourly_rate__gte"]=request.GET['lprice'] 
-	if request.GET["hprice"]!='':
-		tutor_query["hourly_rate__lte"]=request.GET['hprice'] 
-	if request.GET["type"]!='':
-		tutor_query["university"]='Contract' if request.GET['type']=='c' else 'Private' 
+	if uni!='':
+		tutor_query["university"]=uni
+	if tag!='':
+		tutor_query["subject_tag__contains"]=tag
+	if lprice!='':
+		tutor_query["hourly_rate__gte"]=int(lprice)
+	if hprice!='':
+		tutor_query["hourly_rate__lte"]=int(hprice)
+	if t_type=='c':
+		tutor_query["tutor_type"]='Contract' 
+	elif t_type=='p':
+		tutor_query["tutor_type"]='Private'
 
+	tutor_query["activated"]=True 
 	tutor_all = Tutor.objects.filter(**tutor_query)
-	#TODO: exclude yourself
+
 	sort = request.GET['sort']
 	if(sort=='AscP'):
 		tutor_all = tutor_all.order_by('hourly_rate')
@@ -118,28 +121,23 @@ def tutorsList(request):
 	elif(sort=='DscS'):
 		tutor_all = tutor_all.order_by('-avg_review')
 
-	tutor_list = []
 	course = request.GET['course']
+	
 	if(course!=''):
-		for tutor in tutor_all:
-			course_code_query = tutor.teach_course_code.all()
-			for course_code in course_code_query:
-				if(course_code.subject_code==course):
-					tutor_list.append(tutor)
-					break;
-	else:
-		tutor_list = list(tutor_all)
+		subject_code=SubjectCode.objects.get(subject_code=course)#assume it must be there
+		tutor_all=tutor_all.filter(teach_course_code=subject_code)#e.g.: "COMP3297"
 
 	if 'crit' in request.GET:
-		tutor_list = list(tutor for tutor in tutor_list if availableInSevenDays(tutor))
+		tutor_all = [tutor for tutor in tutor_all if availableInSevenDays(tutor)]
+		#if the result is empty
+	if(not tutor_all.exists()):
+		tutor_all=Tutor.objects.filter(activated=True)
 
-	if(len(tutor_list)==0):
-		for tutor in Tutor.objects.filter(activated=True):
-			tutor_list.append(tutor)
-
+#exclude yourself
+	tutor_all=tutor_all.exclude(user_id=request.user.id)
 	url = './tutorsList?university=' + uni + '&course=' + course + '&tag=' + tag + '&lprice=' + lprice + '&hprice=' + hprice + '&type=' + t_type + '&sort='
 
-	return render(request,'mainApp/tutorList.html',{'tutor_list': tutorListToHtml(tutor_list), 'range5': range(5), 'url': url})
+	return render(request,'mainApp/tutorList.html',{'tutor_list': tutorListToHtml(tutor_all), 'range5': range(5), 'url': url})
 
 @login_required
 def detailedProfile(request):
