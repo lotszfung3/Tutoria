@@ -426,7 +426,9 @@ def reviewSubmitted(request):
 
 	this_session.review_state='complete'
 	this_session.save()
-
+	
+	#change tutor avg review
+	tut.updateAvgReview()
 	return render(request,'mainApp/review/reviewSubmitted.html')
 
 

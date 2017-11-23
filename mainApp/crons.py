@@ -69,15 +69,5 @@ class New_Day_Schedule(CronJobBase):
 	schedule=Schedule(run_at_times=RUN_AT_TIMES)
 	code='Tutoria.New_Day_Schedule_cron'
 	def do(self):
-		Schedule.objects.all().update(start_date=datetime.now(timezone.utc))
 		for sch in Schedule.objects.all():
-			sch.start_date=datetime.now(timezone.utc)
-			sch.available_timeslot=sch.available_timeslot[7:]+'a'*7
-			sch.save()
-
-class Test_Cron(CronJobBase):
-	RUN_EVERY_MINS=1
-	schedule=Schedule(run_every_mins=RUN_EVERY_MINS)
-	code='Tutoria.Test_Cron'
-	def do(self):
-		print(datetime.now())
+			sch.daily_update()
