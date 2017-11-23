@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from .models import *
-from datetime import date
+from datetime import date, datetime
 from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
@@ -11,7 +11,7 @@ from django.contrib import messages
 from decimal import *
 @login_required
 def findTutors(request):
-	return render(request,'mainApp/findTutors.html',{'std':request.user.student})
+	return render(request,'mainApp/findTutors.html',{'std':request.user.student,"subject_list":SubjectCode.getCodeList()})
 
 @login_required
 def editAccountDetail(request):
@@ -208,6 +208,23 @@ def bookSession(request):
 	slot = int(request.POST['slot'])
 	student = Student.objects.get(id=request.user.student.id)
 
+	coupon = request.POST['coupon']
+	if coupon == '':
+		couponValid = 'None'
+	elif Coupon.objects.filter(coupon_code=coupon).exists():
+		expiry_date = Coupon.objects.get(coupon_code=coupon).expiry_date
+		if datetime.now(timezone.utc) < expiry_date:
+			couponValid = 'True'
+		else:
+			couponValid = 'Expire'
+	else:
+		couponValid = 'Unknown'
+
+	if couponValid == 'Expire':
+		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'The coupon code you entered has expired, please try again.'})
+	elif couponValid == 'Unknown':
+		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'The coupon code you entered is not valid, please try again.'})
+
 	if(tutor.tutor_type=="Private"):
 		time_str = str(time+9) + ":00:00"
 	else:
@@ -219,7 +236,10 @@ def bookSession(request):
 	if(str(schedule.available_timeslot)[slot]=='a'):
 		#saving the wallet amount
 		student_wallet = Wallet.objects.get(student=student.id)
-		student_wallet.amount = student_wallet.amount - tutor.getStudentRate()
+		if couponValid == 'False':
+			student_wallet.amount = student_wallet.amount - tutor.getStudentRate()
+		else:
+			student_wallet.amount = student_wallet.amount - tutor.hourly_rate
 		student_wallet.save()
 
 		#saving the changed schedule and create session
@@ -229,12 +249,16 @@ def bookSession(request):
 		session.save()
 
 		#saving the transaction record
-		transAMT = tutor.hourly_rate + (.05 * tutor.hourly_rate)
+		if couponValid == 'False':
+			transAMT = tutor.hourly_rate + (.05 * tutor.hourly_rate)
+		else:
+			transAMT = tutor.hourly_rate
 		new_transaction = Transaction.create(session, transAMT, student, tutor)
 		new_transaction.save()
 
 	else:
-		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor})
+		message
+		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'The slot you chose is not available, please choose another slot.'})
 		
 
 	return redirect(viewUpcomingSessions)

@@ -10,9 +10,13 @@
     <input type="text" name="university" placeholder="University Name">
   </div>
   <div class="field">
-    <label>University course</label>
-    <input type="text" name="course" placeholder="Course Code">
-  </div>
+    <label>Sort By</label>
+    <select name="course">
+      <option value="">Choose Subject Code</option>
+      {% for code in subject_list %}
+      <option value="{{code.subject_code}}">{{code.subject_code}}</option>
+      {% endfor %}
+    </select>
   <div class="field">
     <label>Subject tag</label>
     <input type="text" name="tag" placeholder="Subject Tags">
@@ -28,9 +32,9 @@
   <div class="field">
     <label>Contract Type</label>
     <select name="type">
+      <option value="b">Both</option>
       <option value="c">Contract</option>
       <option value="p">Private</option>
-      <option value="b">Both</option>
     </select>
   </div>
   <div class="field">
