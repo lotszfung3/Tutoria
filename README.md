@@ -15,7 +15,14 @@ Then run the server.
 
 Start the schedule that run every 30 minutes using
 
-``` crontab -e
+``` 
+
+>  env EDITOR=nano crontab -e
 */30 * * * * source /home/ubuntu/.bashrc && 
 source /home/ubuntu/work/your-project/bin/activate && 
-python /home/ubuntu/work/your-project/src/manage.py runcrons ```
+python /home/ubuntu/work/your-project/src/manage.py runcrons 
+
+CTRL + 0
+CTRL + X
+
+```
