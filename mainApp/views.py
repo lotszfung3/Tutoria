@@ -176,8 +176,25 @@ def confirmPayment(request):
 	student = Student.objects.get(id=request.user.student.id)
 	student_wallet = Wallet.objects.get(student=student.id)
 
-	if sameTutorBooked(student,tutor,str(date.today()+timedelta(days=(slot-slot%10)/10))):
+
+	session_date = ''
+	if(tutor.tutor_type=="Private"):
+		time = slot%10
+		time_str = str(time+9) + ":00:00"
+		session_date = str(date.today()+timedelta(days=(slot-slot%10)/10))
+	else:
+		time = slot%20
+		session_date = str(date.today()+timedelta(days=(slot-slot%20)/20))
+		if(time%2==0):
+			time_str = str(int(time/2+9)) + ":00:00"
+		else:
+			time_str = str(int((time-1)/2+9)) + ":30:00"
+
+	if sameTutorBooked(student,tutor,session_date):
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'You have already booked another session of this tutor on this day, please try again.'})
+
+	if sameTimeBooked(student,session_date,time_str,tutor.tutor_type):
+		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'You have already booked session at the same time, please try again.'})
 
 	if(student.user==tutor.user):
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'You cannot register your own slot! Please choose another tutor.'})
@@ -187,7 +204,7 @@ def confirmPayment(request):
 		message = message + 'Coupon Code (optional): <input type="text" name="coupon" placeholder="Coupon Code">'
 		message = message + '</div>'
 		message = message +'Your wallet does not have sufficient amount!<button class="ui button" type="submit">Manage Wallet</button>'
-		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(date.today()), 'student': student, 
+		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(date.today()), 'student': student, 'student_wallet': student_wallet,
 			'student_rate': student_rate, 'action': 'manageWallet', 'button': message, 'method': 'get'})
 
 	if(str(schedule.available_timeslot)[slot]=='a'):
@@ -238,6 +255,9 @@ def bookSession(request):
 			time_str = str(int(time/2+9)) + ":00:00"
 		else:
 			time_str = str(int((time-1)/2+9)) + ":30:00"
+
+	if sameTimeBooked(student,date,time_str,tutor.tutor_type):
+		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'You have already booked session at the same time, please try again.'})
 
 	if(str(schedule.available_timeslot)[slot]=='a'):
 		#saving the wallet amount and create session
@@ -489,6 +509,7 @@ def sameTutorBooked(student,tutor,date):
 
 	sessionQuery['session_student'] = student
 	sessionQuery['session_tutor'] = tutor
+	sessionQuery['state'] = 'normal'
 
 	session = Session.objects.filter(**sessionQuery)
 
@@ -496,8 +517,46 @@ def sameTutorBooked(student,tutor,date):
 		sessionList = list(session)
 		sessionList = [session for session in sessionList if str(session.session_datetime.date()) == date]
 		if len(sessionList)!=0:
-			return True;
+			return True
 		else:
-			return False;
+			return False
 	else:
-		return False;
+		return False
+
+def sameTimeBooked(student,date,time,tutor_type):
+	s_datetime = datetime.strptime(date + " " + time, '%Y-%m-%d %H:%M:%S')
+
+	if tutor_type =='Contract':
+		sessionQuery = {}
+
+		sessionQuery['session_datetime'] = s_datetime
+		sessionQuery['state'] = 'normal'
+		sessionQuery['session_student'] = student
+
+		session = Session.objects.filter(**sessionQuery)
+
+		sessionQuery['session_datetime'] = s_datetime - timedelta(minutes=30)
+		session2 = Session.objects.filter(**sessionQuery)
+		session2List = list(session2)
+		session2List = [session for session in session2List if session.session_tutor.tutor_type == 'Private']
+
+		if session.exists() or len(session2List)!=0:
+			return True
+		else:
+			return False
+	else:
+		sessionQuery = {}
+
+		sessionQuery['session_datetime'] = s_datetime
+		sessionQuery['state'] = 'normal'
+		sessionQuery['session_student'] = student
+
+		session = Session.objects.filter(**sessionQuery)
+
+		sessionQuery['session_datetime'] = s_datetime + timedelta(minutes=30)
+		session2 = Session.objects.filter(**sessionQuery)
+
+		if session.exists() or session2.exists():
+			return True
+		else:
+			return False
