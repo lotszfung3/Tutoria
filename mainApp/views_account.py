@@ -123,7 +123,7 @@ def manageWallet(request):
 		amount=100 if request.GET['action']=='add' else -100
 		transaction=Transaction.create(None,amount,request.user.student,None)
 		mes=paymentGateway(request.user,amount)
-
+		
 		return HttpResponse(mes)
 @login_required
 def viewAccountDetail(request):
@@ -149,6 +149,7 @@ def editUnavailableSession(request):
 
 	return render(request,'mainApp/editUnavailableSession.html',{'tutor': tutor, 'date': str(date.today()), 'schedule': str(schedule.available_timeslot)})
 
+@login_required
 def changeSession(request):
 	if(request.method=='GET'):
 		tutor = Tutor.objects.get(id=request.user.tutor.id)

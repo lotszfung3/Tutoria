@@ -136,7 +136,7 @@ def detailedProfile(request):
 	else:
 		reviews_html = '<tr><td>No reviews available yet.</td></tr>'
 
-	return render(request,'mainApp/detailedProfile.html',{'tutor': tutor, 'tutor_info': tutorInformationToHtml(tutor), 'date': str(datetime.utcnow().date()), 'schedule': str(schedule.available_timeslot), 'reviews_html': reviews_html, 'range5': range(5)})
+	return render(request,'mainApp/detailedProfile.html',{'tutor': tutor, 'tutor_info': tutorInformationToHtml(tutor), 'date': str(datetime.now(timezone.utc).date()), 'schedule': str(schedule.available_timeslot), 'reviews_html': reviews_html, 'range5': range(5)})
 
 #post request for payment confirmation
 @login_required
@@ -153,10 +153,10 @@ def confirmPayment(request):
 	if(tutor.tutor_type=="Private"):
 		time = slot%10
 		time_str = str(time+9) + ":00:00"
-		session_date = str(datetime.utcnow().date()+timedelta(days=(slot-slot%10)/10))
+		session_date = str(datetime.now(timezone.utc).date()+timedelta(days=(slot-slot%10)/10))
 	else:
 		time = slot%20
-		session_date = str(datetime.utcnow().date()+timedelta(days=(slot-slot%20)/20))
+		session_date = str(datetime.now(timezone.utc).date()+timedelta(days=(slot-slot%20)/20))
 		if(time%2==0):
 			time_str = str(int(time/2+9)) + ":00:00"
 		else:
@@ -176,7 +176,7 @@ def confirmPayment(request):
 		message = message + 'Coupon Code (optional): <input type="text" name="coupon" placeholder="Coupon Code">'
 		message = message + '</div>'
 		message = message +'Your wallet does not have sufficient amount!<button class="ui button" type="submit">Manage Wallet</button>'
-		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(datetime.utcnow().date()), 'student': student, 'student_wallet': student_wallet,
+		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(datetime.now(timezone.utc).date()), 'student': student, 'student_wallet': student_wallet,
 			'student_rate': student_rate, 'action': 'manageWallet', 'button': message, 'method': 'get'})
 
 	if(str(schedule.available_timeslot)[slot]=='a'):
@@ -184,7 +184,7 @@ def confirmPayment(request):
 		submit = submit + 'Coupon Code (optional): <input type="text" name="coupon" placeholder="Coupon Code">'
 		submit = submit + '</div>'
 		submit = submit + '<button class="ui button" type="submit">Submit</button>'
-		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(datetime.utcnow().date()), 'student': student, 
+		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(datetime.now(timezone.utc).date()), 'student': student, 
 			'student_rate': student_rate, 'action': 'bookSession', 'button': submit, 'message': '', 'method': 'post', 'student_wallet': student_wallet})
 	else:
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'The slot you chose is not available, please choose another slot.'})
@@ -207,8 +207,8 @@ def bookSession(request):
 	if coupon == '':
 		couponValid = 'None'
 	elif Coupon.objects.filter(coupon_code=coupon).exists():
-		expiry_date = Coupon.objects.get(coupon_code=coupon).expiry_date
-		if datetime.now(timezone.utc) < expiry_date:
+		temp_coupon = Coupon.objects.get(coupon_code=coupon)
+		if not temp_coupon.isExpired():
 			couponValid = 'True'
 		else:
 			couponValid = 'Expire'

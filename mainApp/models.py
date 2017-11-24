@@ -159,11 +159,12 @@ class Review(models.Model):
 
 class Coupon(models.Model):
 	coupon_code=models.CharField(max_length=30)
+	activate_date=models.DateTimeField('activate date')
 	expiry_date=models.DateTimeField('expiry date')
 	def __str__ (self):
 		return self.coupon_code
 	def isExpired(self):
-		return this.expiry_date<datetime.now(timezone.utc)
+		return this.expiry_date<datetime.now(timezone.utc) and this.activate_date>datetime.now(timezone.utc)
 #trigger when user created
 #user ->student (and/or) tutor 
 #tutor ->schedule
