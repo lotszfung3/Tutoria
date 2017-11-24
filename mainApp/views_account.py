@@ -10,6 +10,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.signing import TimestampSigner
 from .utils import uploadImage,emailGateway,paymentGateway
 from django.contrib.auth.password_validation import validate_password
+from django.core.files.storage import FileSystemStorage
+from django.views.decorators.cache import never_cache
 
 message_dict={"l_logout":"You have logged out.","l_fail":"Your username or your password doesn't match",
 			 "l_register":"You have registered your account sucessfully","l_reset":"You have reset your password",
@@ -63,7 +65,8 @@ def register(request):
 		user = User.objects.create_user(request.POST['username'], request.POST['email'], request.POST['password'])
 		user.first_name=request.POST['name']
 		user.save()
-		imagePath=uploadImage(request.FILES['myImage'],user.id)
+		fs = FileSystemStorage()
+		filename=fs.save('profilepic/'+str(user.id)+'.jpg',request.FILES['myImage'])
 		user.student.photo_url='profilepic/{}.jpg'.format(str(user.id))
 		user.student.phoneNumber=request.POST['phone']
 		user.student.save()
@@ -125,6 +128,7 @@ def manageWallet(request):
 		mes=paymentGateway(request.user,amount)
 		
 		return HttpResponse(mes)
+@never_cache
 @login_required
 def viewAccountDetail(request):
 	#this_user = request.user.student

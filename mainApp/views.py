@@ -6,7 +6,8 @@ from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from .utils import uploadImage,getSlotIdfromDateTime, emailGateway,paymentGateway
-
+from django.core.files.storage import FileSystemStorage
+from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from decimal import *
 @login_required
@@ -21,7 +22,10 @@ def editAccountDetail(request):
         request.user.student.phoneNumber= request.POST['phoneNumber']
         request.user.student.save()
         if('newImage' in request.FILES):
-            uploadImage(request.FILES['newImage'],request.user.id)
+            fs = FileSystemStorage()
+            fs.delete('profilepic/'+str(request.user.id)+'.jpg')
+            filename=fs.save('profilepic/'+str(request.user.id)+'.jpg',request.FILES['newImage'])
+            #uploadImage(request.FILES['newImage'],request.user.id)
         request.user.save()
         if(hasattr(request.user,'tutor')):
             tutor = request.user.tutor
@@ -60,6 +64,7 @@ def editAccountDetail(request):
 
 #list of tutors with requirement in side request.GET
 @login_required
+@never_cache
 def tutorsList(request):
 	uni=request.GET["university"]
 	tag=request.GET["tag"]
@@ -431,7 +436,7 @@ def tutorListToHtml(tutor_list):
 			string = string + 'Hourly Rate: ' + str(tutor.hourly_rate) + '<br>'
 		string = string + 'Subject Tags: ' + tutor.subject_tag
 		string = string + '</td><td class="right aligned">'
-		string = string + '<img src="/static/' + tutor.photo_url + '"/ alt="' + tutor.photo_url + '" height="100" width="100">'
+		string = string + '<img src="/main/media/'+ tutor.photo_url+'"'+'height="100" width="100">'
 		string = string + '</td></tr></table></a></td></tr>'
 
 	return string

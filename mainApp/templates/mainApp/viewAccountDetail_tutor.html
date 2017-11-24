@@ -8,7 +8,7 @@
 
 <h2>{{this_user}}'s Profile (Tutor)</h2>
 
-<img src="{% static "" %}{{this_user.photo_url}}"/ alt="{{this_user.photo_url}}" height="150" width="150">
+<img src="/main/media/{{this_user.photo_url}}" height="150" width="150">
 
 <div class="ui segment">
     <form class="ui form" action="editAccountDetail" method="post">{% csrf_token %}
@@ -101,7 +101,10 @@
 	</tr>
 	{% endfor %}
 </table>
+        {% else %}
+        <div>no review yet</div>
 		{% endif %}
+        
     </form>
 </div>
 <p></p>

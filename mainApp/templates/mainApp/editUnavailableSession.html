@@ -70,7 +70,7 @@ function scheduling(date, string){
 			}
 			for(var j=0;j<7;j++){
 				if(string.charAt(i+j*20)=="a"){
-					content = content + '<td class="selectable"><a href="./changeSession?sessionID=' + {{tutor.id}} + '&slot=' + (i+j*20).toString() + '"> </a></td>';
+					content = content + '<td class="selectable"><a href="./changeSession?sessionID='+ (i+j*20).toString() + '"> </a></td>';
 				}
 				else if(string.charAt(i+j*20)=="b"){
 					content = content + '<td class="active"> </td>';
