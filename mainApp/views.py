@@ -61,34 +61,6 @@ def editAccountDetail(request):
 #list of tutors with requirement in side request.GET
 @login_required
 def tutorsList(request):
-	'''
-	tutor_query = []
-	uni = request.GET['university']
-	if(uni!=''):
-		tutor_query.append(Tutor.objects.filter(university=uni))
-
-	tag = request.GET['tag']
-	if(tag!=''):
-		tutor_query.append(Tutor.objects.filter(subject_tag__contains=tag))
-
-	lprice = request.GET['lprice']
-	if(lprice!=''):
-		lprice_i = int(lprice)
-		tutor_query.append(Tutor.objects.filter(hourly_rate__gte=lprice_i))
-
-	hprice = request.GET['hprice']
-	if(hprice!=''):
-		hprice_i = int(hprice)
-		tutor_query.append(Tutor.objects.filter(hourly_rate__gte=hprice_i))
-
-	t_type = request.GET['type']
-	if(t_type=='c'):
-		tutor_query.append(Tutor.objects.filter(tutor_type='Contract'))
-	elif(t_type=='p'):
-		tutor_query.append(Tutor.objects.filter(tutor_type='Private'))
-		
-	tutor_query.append(Tutor.objects.filter(activated=True))
-	'''
 	uni=request.GET["university"]
 	tag=request.GET["tag"]
 	lprice=request.GET["lprice"]
@@ -164,7 +136,7 @@ def detailedProfile(request):
 	else:
 		reviews_html = '<tr><td>No reviews available yet.</td></tr>'
 
-	return render(request,'mainApp/detailedProfile.html',{'tutor': tutor, 'tutor_info': tutorInformationToHtml(tutor), 'date': str(date.today()), 'schedule': str(schedule.available_timeslot), 'reviews_html': reviews_html, 'range5': range(5)})
+	return render(request,'mainApp/detailedProfile.html',{'tutor': tutor, 'tutor_info': tutorInformationToHtml(tutor), 'date': str(datetime.utcnow().date()), 'schedule': str(schedule.available_timeslot), 'reviews_html': reviews_html, 'range5': range(5)})
 
 #post request for payment confirmation
 @login_required
@@ -181,10 +153,10 @@ def confirmPayment(request):
 	if(tutor.tutor_type=="Private"):
 		time = slot%10
 		time_str = str(time+9) + ":00:00"
-		session_date = str(date.today()+timedelta(days=(slot-slot%10)/10))
+		session_date = str(datetime.utcnow().date()+timedelta(days=(slot-slot%10)/10))
 	else:
 		time = slot%20
-		session_date = str(date.today()+timedelta(days=(slot-slot%20)/20))
+		session_date = str(datetime.utcnow().date()+timedelta(days=(slot-slot%20)/20))
 		if(time%2==0):
 			time_str = str(int(time/2+9)) + ":00:00"
 		else:
@@ -204,7 +176,7 @@ def confirmPayment(request):
 		message = message + 'Coupon Code (optional): <input type="text" name="coupon" placeholder="Coupon Code">'
 		message = message + '</div>'
 		message = message +'Your wallet does not have sufficient amount!<button class="ui button" type="submit">Manage Wallet</button>'
-		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(date.today()), 'student': student, 'student_wallet': student_wallet,
+		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(datetime.utcnow().date()), 'student': student, 'student_wallet': student_wallet,
 			'student_rate': student_rate, 'action': 'manageWallet', 'button': message, 'method': 'get'})
 
 	if(str(schedule.available_timeslot)[slot]=='a'):
@@ -212,7 +184,7 @@ def confirmPayment(request):
 		submit = submit + 'Coupon Code (optional): <input type="text" name="coupon" placeholder="Coupon Code">'
 		submit = submit + '</div>'
 		submit = submit + '<button class="ui button" type="submit">Submit</button>'
-		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(date.today()), 'student': student, 
+		return render(request,'mainApp/confirmPayment.html',{'tutor': tutor, 'slot': slot, 'today': str(datetime.utcnow().date()), 'student': student, 
 			'student_rate': student_rate, 'action': 'bookSession', 'button': submit, 'message': '', 'method': 'post', 'student_wallet': student_wallet})
 	else:
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'The slot you chose is not available, please choose another slot.'})
