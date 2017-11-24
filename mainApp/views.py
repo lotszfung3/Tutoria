@@ -197,7 +197,7 @@ def bookSession(request):
 		else:
 			time_str = str(int((time-1)/2+9)) + ":30:00"
 
-	if(str(schedule.available_timeslot)[slot]=='a'):
+	if(str(schedule.available_timeslot)[slot]=='a') & (student.wallet.amount > tutor.getStudentRate()):
 		#saving the wallet amount
 		student_wallet = Wallet.objects.get(student=student.id)
 		student_wallet.amount = student_wallet.amount - tutor.getStudentRate()
@@ -214,11 +214,13 @@ def bookSession(request):
 		new_transaction = Transaction.create(session, transAMT, student, tutor)
 		new_transaction.save()
 
+		return redirect(viewUpcomingSessions)
+
 	else:
+		messages.info(request, 'You do not have enough funds in your wallet for this session')
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor})
 		
 
-	return redirect(viewUpcomingSessions)
 
 #routes for cancel payment
 @login_required
@@ -256,7 +258,7 @@ def cancelSession(request, session_ID):
 		return HttpResponseRedirect('/main/upcomingSessions')
 	
 	elif(this_session.state=='cancelled'):#cancelled
-		messages.info(request,'This session have been cancelled')
+		messages.info(request,'This session has been cancelled')
 		return HttpResponseRedirect('/main/upcomingSessions')
 	
 	elif(this_session.state=='locked'):
