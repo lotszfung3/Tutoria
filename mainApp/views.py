@@ -541,7 +541,7 @@ def sameTimeBooked(student,date,time,tutor_type):
 def lessThan24Hours(date,time):
 	s_datetime = datetime.strptime(date + " " + time, '%Y-%m-%d %H:%M:%S')
 
-	if datetime.now()+timedelta(days=1) > s_datetime:
+	if datetime.now(timezone.utc)+timedelta(days=1) > s_datetime:
 		return True
 	else:
 		return False
