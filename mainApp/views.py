@@ -10,6 +10,10 @@ from django.core.files.storage import FileSystemStorage
 from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from decimal import *
+
+import pytz
+
+
 @login_required
 def findTutors(request):
 	return render(request,'mainApp/findTutors.html',{'std':request.user.student,"subject_list":SubjectCode.getCodeList()})
@@ -99,7 +103,6 @@ def tutorsList(request):
 		tutor_all = tutor_all.order_by('-avg_review')
 
 	course = request.GET['course']
-	
 	if(course!=''):
 		subject_code=SubjectCode.objects.get(subject_code=course)#assume it must be there
 		tutor_all=tutor_all.filter(teach_course_code=subject_code)#e.g.: "COMP3297"
@@ -241,13 +244,16 @@ def bookSession(request):
 
 	if(str(schedule.available_timeslot)[slot]=='a'):
 		#saving the wallet amount and create session
+		utc=pytz.UTC
+		s_datetime = datetime.strptime(date + " " + time_str, '%Y-%m-%d %H:%M:%S')
+		s_datetime=utc.localize(s_datetime)-timedelta(hours=8)
 		student_wallet = Wallet.objects.get(student=student.id)
 		if couponValid == 'False':
 			student_wallet.amount = student_wallet.amount - tutor.getStudentRate()
-			session = Session(session_tutor=tutor, session_datetime=date+" "+time_str, session_student=student, coupon_used=False)
+			session = Session(session_tutor=tutor, session_datetime=s_datetime, session_student=student, coupon_used=False)
 		else:
 			student_wallet.amount = student_wallet.amount - tutor.hourly_rate
-			session = Session(session_tutor=tutor, session_datetime=date+" "+time_str, session_student=student, coupon_used=True)
+			session = Session(session_tutor=tutor, session_datetime=s_datetime, session_student=student, coupon_used=True)
 		student_wallet.save()
 		session.save()
 
@@ -281,10 +287,11 @@ def viewUpcomingSessions(request):
 	# Get Student Info
 	this_student = request.user.student
 	# retrieve list of sessions associated with the student
-	# currently only retrieves sessions with (state='normal')
-	student_sessions = this_student.session_set.filter(state='locked') | this_student.session_set.filter(state='normal')
+	student_sessions = this_student.session_set.filter(state__in=['locked','normal']) 
 	# return list of sessions
-	context = {'student_sessions': student_sessions, 'this_student': this_student,}
+	temp_session=request.user.tutor.session_set.filter(state__in=['locked','normal']).order_by('session_datetime') if hasattr(request.user,'tutor') and request.user.tutor.session_set.exists() else None
+		
+	context = {'student_sessions': student_sessions, 'this_student': this_student,'tutor_session':temp_session}
 	return render(request,'mainApp/viewUpcomingSessions.html',context)
 
 
@@ -506,8 +513,9 @@ def sameTutorBooked(student,tutor,date):
 		return False
 
 def sameTimeBooked(student,date,time,tutor_type):
+	utc=pytz.UTC
 	s_datetime = datetime.strptime(date + " " + time, '%Y-%m-%d %H:%M:%S')
-
+	s_datetime=utc.localize(s_datetime)-timedelta(hours=8)
 	if tutor_type =='Contract':
 		sessionQuery = {}
 
@@ -544,8 +552,9 @@ def sameTimeBooked(student,date,time,tutor_type):
 			return False
 
 def lessThan24Hours(date,time):
+	utc=pytz.UTC
 	s_datetime = datetime.strptime(date + " " + time, '%Y-%m-%d %H:%M:%S')
-
+	s_datetime=utc.localize(s_datetime)-timedelta(hours=8)
 	if datetime.now(timezone.utc)+timedelta(days=1) > s_datetime:
 		return True
 	else:

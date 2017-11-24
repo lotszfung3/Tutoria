@@ -145,7 +145,7 @@ def viewTransaction(request):
 	name=request.user.first_name
 	wallet=request.user.student.wallet
 	return render(request, 'mainApp/viewTransaction.html', {'name': name,'transactions':wallet.transactions.filter(create_date__lte=datetime.now(timezone.utc)+timedelta(days=30)).order_by("-create_date") if wallet.transactions.count()>0 else None})
-		
+	
 @login_required
 def editUnavailableSession(request):
 	tutor = Tutor.objects.get(id=request.user.tutor.id)

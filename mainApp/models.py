@@ -164,7 +164,7 @@ class Coupon(models.Model):
 	def __str__ (self):
 		return self.coupon_code
 	def isExpired(self):
-		return this.expiry_date<datetime.now(timezone.utc) and this.activate_date>datetime.now(timezone.utc)
+		return self.expiry_date<datetime.now(timezone.utc) and self.activate_date>datetime.now(timezone.utc)
 #trigger when user created
 #user ->student (and/or) tutor 
 #tutor ->schedule
