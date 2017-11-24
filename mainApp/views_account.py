@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import User,Student,Tutor,SubjectCode,Wallet,Transaction,Schedule
 from datetime import datetime,date,timedelta,timezone
@@ -167,4 +167,4 @@ def changeSession(request):
 			schedule.available_timeslot = schedule.available_timeslot[:slot] + "a" + schedule.available_timeslot[(slot+1):]
 			schedule.save()
 
-	return render(request,'mainApp/editUnavailableSession.html',{'tutor': tutor, 'date': str(date.today()), 'schedule': str(schedule.available_timeslot)})
+	return redirect(editUnavailableSession)
