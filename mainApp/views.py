@@ -153,10 +153,10 @@ def confirmPayment(request):
 	if(tutor.tutor_type=="Private"):
 		time = slot%10
 		time_str = str(time+9) + ":00:00"
-		session_date = str(datetime.now(timezone.utc).date()+timedelta(days=(slot-slot%10)/10))
+		session_date = str(datetime.now(timezone.utc).date()+timedelta(days=(slot-slot%10)/10+1))
 	else:
 		time = slot%20
-		session_date = str(datetime.now(timezone.utc).date()+timedelta(days=(slot-slot%20)/20))
+		session_date = str(datetime.now(timezone.utc).date()+timedelta(days=(slot-slot%20)/20+1))
 		if(time%2==0):
 			time_str = str(int(time/2+9)) + ":00:00"
 		else:
@@ -167,6 +167,9 @@ def confirmPayment(request):
 
 	if sameTimeBooked(student,session_date,time_str,tutor.tutor_type):
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'You have already booked session at the same time, please try again.'})
+
+	if lessThan24Hours(session_date,time_str):
+		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'You cannot book a session within 24 hours, please choose another slot.'})
 
 	if(student.user==tutor.user):
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'You cannot register your own slot! Please choose another tutor.'})
@@ -534,3 +537,11 @@ def sameTimeBooked(student,date,time,tutor_type):
 			return True
 		else:
 			return False
+
+def lessThan24Hours(date,time):
+	s_datetime = datetime.strptime(date + " " + time, '%Y-%m-%d %H:%M:%S')
+
+	if datetime.now()+timedelta(days=1) > s_datetime:
+		return True
+	else:
+		return False

@@ -34,6 +34,7 @@ function getDateTime(slot){
 	var date = "{{today}}";
 	var year = parseInt(date.slice(0,date.indexOf("-")));
 	date = date.slice(date.indexOf("-")+1);
+	date = dateIncrement(date,year);
 	if("{{tutor.tutor_type}}"=="Private"){
 		var i = slot%10;
 		var j = (slot-slot%10)/10;
