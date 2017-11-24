@@ -23,7 +23,7 @@
     </div>
 
 	<div class="wide field">	
-	<label>Subect code</label>
+	<label>Subject code</label>
 <select name="subject" multiple="" class="ui fluid dropdown">
 <option value="">Subject you are teaching</option>
 	{% for code in subject_list %}
@@ -58,7 +58,7 @@
     </div>
     <div class="field">
         <label>Hourly Rate</label>
-        <input type="text" name="hourly_rate" placeholder="hourly_rate" value={{this_user.hourly_rate}} {% if this_user.tutor_type == 'Contract' %}disabled {% endif %}>
+        <input type="text" name="hourly_rate" placeholder="hourly_rate" value={{this_user.hourly_rate}} {% if this_user.tutor_type == 'Contract' %}readonly {% endif %}>
     </div>
     <div>
         <label>Introduction</label>

@@ -34,11 +34,19 @@
             <label>University</label>
             <input type="text" name="university" placeholder="university" value={{this_user.university}} disabled>
         </div>
-        <div class="field">
+        <div class="wide field">
             <label>Teaching Course Code</label>
-            <input type="text" name="subject_code" placeholder="subject_code" value={% for code in this_user.teach_course_code.all %}
-            {{code}}
-            {% endfor %} disabled>
+            
+            <select name="subject" multiple="" class="ui fluid dropdown">
+                {% for code in this_user.teach_course_code.all %}
+                <option value="{{code.subject_code}}" selected>{{code.subject_code}}</option>
+                {% endfor %}
+            </select>
+            
+            <!--<input type="text" name="subject_code" placeholder="subject_code" value={% for code in this_user.teach_course_code.all %}
+            {{code}},
+            {% endfor %} disabled>-->
+            
         </div>
         <div class="field">
             <label>Subject Tag</label>
