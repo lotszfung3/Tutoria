@@ -216,19 +216,14 @@ def bookSession(request):
 
 	coupon = request.POST['coupon']
 	if coupon == '':
-		couponValid = 'None'
+		couponValid = False
 	elif Coupon.objects.filter(coupon_code=coupon).exists():
 		temp_coupon = Coupon.objects.get(coupon_code=coupon)
 		if not temp_coupon.isExpired():
-			couponValid = 'True'
+			couponValid = True
 		else:
-			couponValid = 'Expire'
+			return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'The coupon code you entered has expired, please try again.'})
 	else:
-		couponValid = 'Unknown'
-
-	if couponValid == 'Expire':
-		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'The coupon code you entered has expired, please try again.'})
-	elif couponValid == 'Unknown':
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'The coupon code you entered is not valid, please try again.'})
 
 	if(tutor.tutor_type=="Private"):
@@ -248,7 +243,7 @@ def bookSession(request):
 		s_datetime = datetime.strptime(date + " " + time_str, '%Y-%m-%d %H:%M:%S')
 		s_datetime=utc.localize(s_datetime)-timedelta(hours=8)
 		student_wallet = Wallet.objects.get(student=student.id)
-		if couponValid == 'False':
+		if not couponValid :
 			student_wallet.amount = student_wallet.amount - tutor.getStudentRate()
 			session = Session(session_tutor=tutor, session_datetime=s_datetime, session_student=student, coupon_used=False)
 		else:
@@ -263,14 +258,14 @@ def bookSession(request):
 		
 
 		#saving the transaction record
-		if couponValid == 'False':
+		if not couponValid :
 			transAMT = tutor.hourly_rate + (.05 * tutor.hourly_rate)
 		else:
 			transAMT = tutor.hourly_rate
 		new_transaction = Transaction.create(session, transAMT, student, tutor)
 		new_transaction.save()
 
-		if couponValid == 'False':
+		if not couponValid:
 			emailGateway('session_book',[student.user.first_name,tutor.user.first_name],{"datetime":session.session_datetime,"amount":tutor.hourly_rate, "commission": tutor.getStudentRate()})
 		else:
 			emailGateway('session_book_coupon',[student.user.first_name,tutor.user.first_name],{"datetime":session.session_datetime,"amount":tutor.hourly_rate})
@@ -353,7 +348,8 @@ def sessionCancelled(request, session_ID):
 		temp_sch.save()
 		#add value back to student
 		student_wallet = this_student.wallet
-		student_wallet.amount += temp_tutor.getStudentRate()
+		temp_amount=temp_tutor.hourly_rate if this_session.coupon_used else temp_tutor.getStudentRate()
+		student_wallet.amount +=  temp_amount
 		student_wallet.save()
 
 		#change transaction state
@@ -361,7 +357,7 @@ def sessionCancelled(request, session_ID):
 		this_transaction.save()
 		
 		#email
-		emailGateway('session_cancel',[str(this_student),str(temp_tutor)],{"datetime":this_session.session_datetime,"amount":temp_tutor.getStudentRate()})
+		emailGateway('session_cancel',[str(this_student),str(temp_tutor)],{"datetime":this_session.session_datetime,"amount":temp_amount})
 		
 		return render(request,'mainApp/cancel/sessionCancelled.html')
 
@@ -499,12 +495,12 @@ def sameTutorBooked(student,tutor,date):
 	sessionQuery['session_student'] = student
 	sessionQuery['session_tutor'] = tutor
 	sessionQuery['state'] = 'normal'
-
+	date=datetime.strptime(date,'%Y-%m-%d')+timedelta(days=1)
 	session = Session.objects.filter(**sessionQuery)
 
 	if session.exists():
 		sessionList = list(session)
-		sessionList = [session for session in sessionList if str(session.session_datetime.date()) == date]
+		sessionList = [session for session in sessionList if session.session_datetime.date() == date.date()]
 		if len(sessionList)!=0:
 			return True
 		else:

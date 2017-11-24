@@ -12,7 +12,7 @@ Email body:{}
 def getSlotIdfromDateTime(s_date,tutor_type):
     roundedA = s_date.replace(hour = 0, minute = 0)
     roundedB = datetime.now(timezone.utc).replace(hour = 0, minute = 0,second=0,microsecond=0)
-    days = (roundedA - roundedB).days
+    days = (roundedA - roundedB).days -2
     if(tutor_type=="Private"):
         days*=10
         days+=s_date.hour-1
@@ -31,7 +31,7 @@ def emailGateway(email_type,recipients,info):#recipent:[student name, tutor name
         print(email_format.format(" Session has been cancelled",recipients[0],"Your Tutoria session at {} has been cancelled.\n The amount ${} has been refunded to your wallet.".format(localtime(info["datetime"]),info["amount"])))
         print(email_format.format(" Session has been cancelled",recipients[1],"Your Tutoria session at {} has been cancelled.".format(localtime(info["datetime"]))))
     elif(email_type=='session_book'):
-        print(email_format.format(" Session has been booked",recipients[0],"The session at {} has been booked.\n The amount {} including commission fee {} has been deducted from your wallet.".format(localtime(info["datetime"]),info["amount"],info["commission"])))
+        print(email_format.format(" Session has been booked",recipients[0],"The session at {} has been booked.\n The amount including commission fee {} has been deducted from your wallet.".format(localtime(info["datetime"]),info["commission"])))
         print(email_format.format(" Session has been booked",recipients[1],"The session at {} has been booked.".format(localtime(info["datetime"]))))
     elif(email_type=='session_book_coupon'):
         print(email_format.format(" Session has been booked",recipients[0],"The session at {} has been booked.\n The amount {} has been deducted from your wallet.".format(localtime(info["datetime"]),info["amount"])))

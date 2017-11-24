@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import datetime,timezone, timedelta
-
+from django.db.models import Avg
 # Create your models here.
 
 class SubjectCode(models.Model):
@@ -65,7 +65,7 @@ class Tutor(models.Model):
 		if self.review_set.count()<3:
 			self.avg_review=-1
 		else:
-			self.avg_review=round(self.review_set.aggregate(Avg('stars')))
+			self.avg_review=int(self.review_set.aggregate(Avg('stars'))['stars__avg'])
 		self.save()
 			
 	def getStudentRate(self):
