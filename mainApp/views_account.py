@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import User,Student,Tutor,SubjectCode,Wallet,Transaction,Schedule
 from datetime import datetime,date,timedelta,timezone
@@ -10,6 +10,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.signing import TimestampSigner
 from .utils import uploadImage,emailGateway,paymentGateway
 from django.contrib.auth.password_validation import validate_password
+from django.core.files.storage import FileSystemStorage
+from django.views.decorators.cache import never_cache
 
 message_dict={"l_logout":"You have logged out.","l_fail":"Your username or your password doesn't match",
 			 "l_register":"You have registered your account sucessfully","l_reset":"You have reset your password",
@@ -63,7 +65,8 @@ def register(request):
 		user = User.objects.create_user(request.POST['username'], request.POST['email'], request.POST['password'])
 		user.first_name=request.POST['name']
 		user.save()
-		imagePath=uploadImage(request.FILES['myImage'],user.id)
+		fs = FileSystemStorage()
+		filename=fs.save('profilepic/'+str(user.id)+'.jpg',request.FILES['myImage'])
 		user.student.photo_url='profilepic/{}.jpg'.format(str(user.id))
 		user.student.phoneNumber=request.POST['phone']
 		user.student.save()
@@ -123,8 +126,9 @@ def manageWallet(request):
 		amount=100 if request.GET['action']=='add' else -100
 		transaction=Transaction.create(None,amount,request.user.student,None)
 		mes=paymentGateway(request.user,amount)
-
+		
 		return HttpResponse(mes)
+@never_cache
 @login_required
 def viewAccountDetail(request):
 	#this_user = request.user.student
@@ -141,7 +145,7 @@ def viewTransaction(request):
 	name=request.user.first_name
 	wallet=request.user.student.wallet
 	return render(request, 'mainApp/viewTransaction.html', {'name': name,'transactions':wallet.transactions.filter(create_date__lte=datetime.now(timezone.utc)+timedelta(days=30)).order_by("-create_date") if wallet.transactions.count()>0 else None})
-		
+	
 @login_required
 def editUnavailableSession(request):
 	tutor = Tutor.objects.get(id=request.user.tutor.id)
@@ -149,6 +153,7 @@ def editUnavailableSession(request):
 
 	return render(request,'mainApp/editUnavailableSession.html',{'tutor': tutor, 'date': str(date.today()), 'schedule': str(schedule.available_timeslot)})
 
+@login_required
 def changeSession(request):
 	if(request.method=='GET'):
 		tutor = Tutor.objects.get(id=request.user.tutor.id)
@@ -162,4 +167,4 @@ def changeSession(request):
 			schedule.available_timeslot = schedule.available_timeslot[:slot] + "a" + schedule.available_timeslot[(slot+1):]
 			schedule.save()
 
-	return render(request,'mainApp/editUnavailableSession.html',{'tutor': tutor, 'date': str(date.today()), 'schedule': str(schedule.available_timeslot)})
+	return redirect(editUnavailableSession)

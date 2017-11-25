@@ -55,8 +55,7 @@ MIDDLEWARE = [
 CRON_CLASSES = [
     "mainApp.crons.Lock_Session",
     "mainApp.crons.End_Session",
-    "mainApp.crons.New_Day_Schedule",
-	"mainApp.crons.Test_Cron"
+    "mainApp.crons.New_Day_Schedule"
 ]
 
 ROOT_URLCONF = 'Tutoria.urls'
@@ -76,6 +75,11 @@ TEMPLATES = [
         },
     },
 ]
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
 
 WSGI_APPLICATION = 'Tutoria.wsgi.application'
 
@@ -131,5 +135,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-MEDIA_URL='./mainApp/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = '/main/login'

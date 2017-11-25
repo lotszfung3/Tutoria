@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from . import views
 from . import views_account
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     url(r'^test$', views_account.test, name='test'),
@@ -25,5 +27,6 @@ urlpatterns = [
 	url(r'^editAccountDetail$',views.editAccountDetail,name='editAccountDetail'),
 	url(r'^viewTransaction$',views_account.viewTransaction,name='viewTransaction'),
     url(r'^editSession$',views_account.editUnavailableSession,name='editUnavailableSession'),
-    url(r'^changeSession$',views_account.changeSession,name='changeSession')
-]
+    url(r'^changeSession$',views_account.changeSession,name='changeSession'),
+    
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

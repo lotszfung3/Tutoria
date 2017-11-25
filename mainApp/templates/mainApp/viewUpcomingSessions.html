@@ -112,4 +112,46 @@
     {% endfor %}
 </ul>
 {% endif %}
+{% if tutor_session %}
+<h2>Upcoming teaching sessions:</h2>
+<table cellspacing="20" class="ui celled table">
+	<tr>
+		<th>
+			Session Start Time
+		</th>
+		<th>
+			Session Duration
+		</th>
+		<th>
+			Session ID
+		</th>
+		<th>
+			Session State
+		</th>
+		<th>
+			Student
+		</th>
+	</tr>
+	{% for session in tutor_session %}
+	<tr>
+		<td>
+			<p>{{session.session_datetime}}</p>
+		</td>
+		
+		<td>
+			<p>{% if session.session_tutor.tutor_type == 'Contract' %}30 minutes {% else %} 1 hour {% endif %}</p>
+		</td>
+		<td>
+			<p>{{session.id}}</p>
+		</td>
+		<td>
+			<p>{{session.state}}</p>
+		</td>
+		<td>
+			<p>{{session.session_student}}</p>
+		</td>
+	</tr>
+	{% endfor %}
+</table>
+{% endif %}
 {% endblock %}

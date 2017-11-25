@@ -60,7 +60,7 @@
 	
 	<div class="field">
 	
-    <div class="ui slider checkbox">
+    <div class="ui slider checkbox tut_cb">
       <input type="checkbox" name="role" onclick='alert("sd'>
       <label>I would also like to be a tutor!</label>
     </div>
@@ -74,11 +74,11 @@
     </div>
     <div class="ten wide field">
       <label>Tag your Profile using '#'</label>
-      <input class="tutor" type="text" name="tag" placeholder="e.g. #Tags #Tutoria" pattern="(#.+)+">
+      <input class="tutor" type="text" name="tag" placeholder="e.g. #Tags #Tutoria" pattern="(#.+)+" >
     </div>
 	</div>
 	
-      <div class="inline fields">
+      <div class="inline fields tutor">
     <label>What type of tutor are you ?</label>
     <div class="field">
       <div class="ui radio checkbox">
@@ -97,7 +97,7 @@
 	<div class="fields">    
 	<div class="ten wide field">
       <label>Hourly Rate (0 if you are contract tutor)</label>
-      <input class="tutor" type="number" name="hourlyRate" pattern="[0-9]" placeholder="Hourly Rate">
+      <input class="tutor" type="number" name="hourlyRate" pattern="[0-9]" placeholder="Hourly Rate" >
     </div>
 	
 	
@@ -113,7 +113,7 @@
 	</div>
 	<div class="field">    
       <label>Personal Description</label>
-      <input class="tutor" type="text" name="description" placeholder="Descript yourself">
+      <input class="tutor " type="text" name="description" placeholder="Descript yourself">
     </div>
 <button class="ui fluid large teal submit button" type="submit">Submit</button>
 	
@@ -122,13 +122,14 @@
 	</div>
 <script>
 $('.ui.dropdown').dropdown();
-$('.ui.checkbox').checkbox({
+$('.tutor').addClass("disabled").attr("disabled","disabled");
+$('.ui.checkbox.tut_cb').checkbox({
 onChecked: function() {
 		
-      $('.tutor').attr("required",true).attr("disabled","disabled");
+      $('.tutor').attr("required",true).removeClass("disabled").removeAttr("disabled");
     },
     onUnchecked: function() {
-      $('.tutor').removeAttr("required").removeAttr("disabled");
+      $('.tutor').removeAttr("required").addClass("disabled").attr("disabled","disabled");
     }});
 
 </script>

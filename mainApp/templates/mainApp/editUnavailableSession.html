@@ -31,6 +31,7 @@
 function scheduling(date, string){
 	var year = parseInt(date.slice(0,date.indexOf("-")));
 	date = date.slice(date.indexOf("-")+1);
+	date = dateIncrement(date,year);
 	//document.write(date);
 	var content = '<table class="ui celled single line table">';
 	content = content + "<thead><tr><th>" + "date" + "</th>";
@@ -69,7 +70,7 @@ function scheduling(date, string){
 			}
 			for(var j=0;j<7;j++){
 				if(string.charAt(i+j*20)=="a"){
-					content = content + '<td class="selectable"><a href="./confirmPayment?tutorsID=' + {{tutor.id}} + '&slot=' + (i+j*20).toString() + '"> </a></td>';
+					content = content + '<td class="selectable"><a href="./changeSession?sessionID='+ (i+j*20).toString() + '"> </a></td>';
 				}
 				else if(string.charAt(i+j*20)=="b"){
 					content = content + '<td class="active"> </td>';
