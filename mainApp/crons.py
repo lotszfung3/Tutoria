@@ -7,15 +7,16 @@ from django_cron import CronJobBase, Schedule
 from .utils import uploadImage,emailGateway,paymentGateway
 
 class Lock_Session(CronJobBase):
-	RUN_EVERY_MINS = 30
+	RUN_EVERY_MINS = 1
 	schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
 	code = 'Tutoria.Lock_Session_cron'
 	def do(self):
+		print("qwe")
 		now = datetime.now(timezone.utc)
 
 		all_sessions = Session.objects.filter(state='normal')
 		for session in all_sessions:
-			if session.session_datetime  < (now + timedelta(hours=24)):
+			if session.session_datetime  < (now + timedelta(days=1)):
 				
 				# lock session
 				session.state = 'locked'
@@ -28,11 +29,12 @@ class Lock_Session(CronJobBase):
 
 
 class End_Session(CronJobBase):
-	RUN_EVERY_MINS = 30
+	RUN_EVERY_MINS = 1
 	schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
 	code = 'Tutoria.End_Session_cron'
 	def do(self):
-		now = datetime.now(timezone.utc)
+		print("asd")
+		now = datetime.now(timezone.utc)+timedelta(days=4)
 
 		# all potentially ended sessions
 		all_sessions=Session.objects.filter(state='locked')
