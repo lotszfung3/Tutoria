@@ -9,7 +9,7 @@
 <h3>Session Date : {{this_session.session_datetime}}</h3>
 <form class="ui form" action="/main/reviewSubmitted" method="post">{% csrf_token %}
 	<div class="field">
-		<label>Please rate the quality of this session on a scale from 0-6: </label>
+		<label>Please rate the quality of this session on a scale from 0-5: </label>
 		<select name="rating">
 				<option value="0">0</option>
 				<option value="1">1</option>
@@ -17,7 +17,6 @@
 				<option value="3">3</option>
 				<option value="4">4</option>
 				<option value="5">5</option>
-				<option value="6">6</option>
 		</select>
 	</div>
 	<br>

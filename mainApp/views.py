@@ -108,17 +108,18 @@ def tutorsList(request):
 		subject_code=SubjectCode.objects.get(subject_code=course)#assume it must be there
 		tutor_all=tutor_all.filter(teach_course_code=subject_code)#e.g.: "COMP3297"
 
-	if 'crit' in request.GET:
-		tutor_all = [tutor for tutor in tutor_all if availableInSevenDays(tutor)]
-		#if the result is empty
-
 
 
 #exclude yourself
 	tutor_all=tutor_all.exclude(user_id=request.user.id)
 	if(name!=''):
 		tutor_all=[tutor for tutor in tutor_all if name in tutor.user.first_name]
-	url = './tutorsList?university=' + uni + '&course=' + course + '&tag=' + tag + '&lprice=' + lprice + '&hprice=' + hprice + '&type=' + t_type + '&sort='
+	url = './tutorsList?name=' + name + '&university=' + uni + '&course=' + course + '&tag=' + tag + '&lprice=' + lprice + '&hprice=' + hprice + '&type=' + t_type + '&sort='
+
+
+	if 'crit' in request.GET:
+		tutor_all = [tutor for tutor in tutor_all if availableInSevenDays(tutor)]
+		#if the result is empty
 
 	if(len(tutor_all)==0):
 		tutor_all=Tutor.objects.filter(activated=True)
@@ -248,15 +249,17 @@ def bookSession(request):
 		utc=pytz.UTC
 		s_datetime = datetime.strptime(date + " " + time_str, '%Y-%m-%d %H:%M:%S')
 		s_datetime=utc.localize(s_datetime)-timedelta(hours=8)
-		student_wallet = Wallet.objects.get(student=student.id)
-		if not couponValid :
+		student_wallet = student.wallet
+		if not couponValid:
 			student_wallet.amount = student_wallet.amount - tutor.getStudentRate()
 			session = Session(session_tutor=tutor, session_datetime=s_datetime, session_student=student, coupon_used=False)
 		else:
 			student_wallet.amount = student_wallet.amount - tutor.hourly_rate
 			session = Session(session_tutor=tutor, session_datetime=s_datetime, session_student=student, coupon_used=True)
-		student_wallet.save()
+
+		print(student_wallet.amount)
 		session.save()
+		student_wallet.save()
 
 		#saving the changed schedule
 		schedule.available_timeslot = schedule.available_timeslot[:slot] + "b" + schedule.available_timeslot[(slot+1):]
@@ -264,7 +267,7 @@ def bookSession(request):
 		
 
 		#saving the transaction record
-		if not couponValid :
+		if not couponValid:
 			transAMT = tutor.hourly_rate + (.05 * tutor.hourly_rate)
 		else:
 			transAMT = tutor.hourly_rate
@@ -279,7 +282,11 @@ def bookSession(request):
 			emailGateway('session_book_coupon',[student.user.first_name,tutor.user.first_name],{"datetime":session.session_datetime,"amount":tutor.hourly_rate})
 
 	else:
-		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'The slot you chose is not available, please choose another slot.'})
+		if(str(schedule.available_timeslot)[slot]!='a'):
+			return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'The slot you chose is not available, please choose another slot.'})
+		elif(student.wallet.amount >= tutor.getStudentRate()):
+			return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'Your wallet does not have sufficient amount! Please try again.'})
+
 	return HttpResponseRedirect('/main/upcomingSessions')
 
 
