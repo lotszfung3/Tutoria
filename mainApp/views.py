@@ -111,14 +111,17 @@ def tutorsList(request):
 	if 'crit' in request.GET:
 		tutor_all = [tutor for tutor in tutor_all if availableInSevenDays(tutor)]
 		#if the result is empty
-	if(not tutor_all.exists()):
-		tutor_all=Tutor.objects.filter(activated=True)
+
+
 
 #exclude yourself
 	tutor_all=tutor_all.exclude(user_id=request.user.id)
 	if(name!=''):
-		tutor_all=[tutor for tutor in tutor_all if tutor.user.first_name==name]
+		tutor_all=[tutor for tutor in tutor_all if name in tutor.user.first_name]
 	url = './tutorsList?university=' + uni + '&course=' + course + '&tag=' + tag + '&lprice=' + lprice + '&hprice=' + hprice + '&type=' + t_type + '&sort='
+
+	if(len(tutor_all)==0):
+		tutor_all=Tutor.objects.filter(activated=True)
 
 	return render(request,'mainApp/tutorList.html',{'tutor_list': tutorListToHtml(tutor_all), 'range5': range(5), 'url': url})
 
