@@ -75,6 +75,7 @@ def tutorsList(request):
 	lprice=request.GET["lprice"]
 	hprice=request.GET["hprice"]
 	t_type=request.GET["type"]
+	name=request.GET['name']
 	tutor_query={}
 	if uni!='':
 		tutor_query["university"]=uni
@@ -115,6 +116,8 @@ def tutorsList(request):
 
 #exclude yourself
 	tutor_all=tutor_all.exclude(user_id=request.user.id)
+	if(name!=''):
+		tutor_all=[tutor for tutor in tutor_all if tutor.user.first_name==name]
 	url = './tutorsList?university=' + uni + '&course=' + course + '&tag=' + tag + '&lprice=' + lprice + '&hprice=' + hprice + '&type=' + t_type + '&sort='
 
 	return render(request,'mainApp/tutorList.html',{'tutor_list': tutorListToHtml(tutor_all), 'range5': range(5), 'url': url})
@@ -274,7 +277,7 @@ def bookSession(request):
 
 	else:
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'The slot you chose is not available, please choose another slot.'})
-
+	return HttpResponseRedirect('/main/upcomingSessions')
 
 
 #routes for cancel payment
@@ -496,7 +499,7 @@ def sameTutorBooked(student,tutor,date):
 	sessionQuery['session_student'] = student
 	sessionQuery['session_tutor'] = tutor
 	sessionQuery['state'] = 'normal'
-	date=datetime.strptime(date,'%Y-%m-%d')+timedelta(days=1)
+	date=datetime.strptime(date,'%Y-%m-%d')
 	session = Session.objects.filter(**sessionQuery)
 
 	if session.exists():

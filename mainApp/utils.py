@@ -28,20 +28,20 @@ def uploadImage(file,user_id):
 	
 def emailGateway(email_type,recipients,info):#recipent:[student name, tutor name]
     if(email_type=='session_cancel'):
-        print(email_format.format(" Session has been cancelled",recipients[0],"Your Tutoria session at {} has been cancelled.\n The amount ${} has been refunded to your wallet.".format(localtime(info["datetime"]),info["amount"])))
-        print(email_format.format(" Session has been cancelled",recipients[1],"Your Tutoria session at {} has been cancelled.".format(localtime(info["datetime"]))))
+        print(email_format.format(" Session has been cancelled (For students)",recipients[0],"Your Tutoria session at {} has been cancelled.\n The amount ${} has been refunded to your wallet.".format(localtime(info["datetime"]),info["amount"])))
+        print(email_format.format(" Session has been cancelled (For tutors)",recipients[1],"Your Tutoria session at {} has been cancelled.".format(localtime(info["datetime"]))))
     elif(email_type=='session_book'):
-        print(email_format.format(" Session has been booked",recipients[0],"The session at {} has been booked.\n The amount including commission fee {} has been deducted from your wallet.".format(localtime(info["datetime"]),info["commission"])))
-        print(email_format.format(" Session has been booked",recipients[1],"The session at {} has been booked.".format(localtime(info["datetime"]))))
+        print(email_format.format(" Session has been booked (For students)",recipients[0],"The session at {} has been booked.\n The amount including commission fee {} has been deducted from your wallet.".format(localtime(info["datetime"]),info["commission"])))
+        print(email_format.format(" Session has been booked (For tutors)",recipients[1],"The session at {} has been booked.".format(localtime(info["datetime"]))))
     elif(email_type=='session_book_coupon'):
-        print(email_format.format(" Session has been booked",recipients[0],"The session at {} has been booked.\n The amount {} has been deducted from your wallet.".format(localtime(info["datetime"]),info["amount"])))
-        print(email_format.format(" Session has been booked",recipients[1],"The session at {} has been booked.".format(localtime(info["datetime"]))))
+        print(email_format.format(" Session has been booked (For students)",recipients[0],"The session at {} has been booked.\n The amount {} has been deducted from your wallet.".format(localtime(info["datetime"]),info["amount"])))
+        print(email_format.format(" Session has been booked (For tutors)",recipients[1],"The session at {} has been booked.".format(localtime(info["datetime"]))))
     elif(email_type=='session_end'):
-        print(email_format.format(" Session has ended",recipients[0],"The session (ID={}) at {} has ended.\n Your payment will be processed shortly.\n Please use the following link to submit a review: http://127.0.0.1:8000/main/submitReviews/{} \n".format(info.id,info.session_datetime,info.id)))
-        print(email_format.format(" Session has ended",recipients[1],"The session (ID={}) at {} has ended.\n Your transaction will be processed shortly.".format(info.id,info.session_datetime)))
+        print(email_format.format(" Session has ended (For students)",recipients[0],"The session (ID={}) at {} has ended.\n Your payment will be processed shortly.\n Please use the following link to submit a review: http://127.0.0.1:8000/main/submitReviews/{} \n".format(info.id,info.session_datetime,info.id)))
+        print(email_format.format(" Session has ended (For tutors)",recipients[1],"The session (ID={}) at {} has ended.\n Your transaction will be processed shortly.".format(info.id,info.session_datetime)))
     elif(email_type=='session_lock'):
-        print(email_format.format(" Upcoming Session", recipients[0], "You have a session (ID={}) with {} at {}. You can no longer cancel this session. ".format(info.id,info.session_tutor,info.session_datetime)))
-        print(email_format.format(" Upcoming Session", recipients[1], "You have a session (ID={}) with {} at {}. They can no longer cancel this session. ".format(info.id,info.session_student,info.session_datetime)))
+        print(email_format.format(" Upcoming Session", recipients[0], "You have a session (ID={}) with {} at {}. You can no longer cancel this session. ".format(info.id,info.session_student,info.session_datetime)))
+        print(email_format.format(" Upcoming Session", recipients[1], "You have a session (ID={}) with {} at {}. They can no longer cancel this session. ".format(info.id,info.session_tutor,info.session_datetime)))
     elif(email_type=='transaction_received'):
         print(email_format.format(" Transaction completed.",recipients.name,"The transaction for your Tutoria session (ID={}) has been processed.\n {} has been added to your wallet".format(info.id,info.session_tutor.hourly_rate)))
     elif(email_type=='wallet_handle'):
