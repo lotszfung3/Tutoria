@@ -240,7 +240,7 @@ def bookSession(request):
 	if sameTimeBooked(student,date,time_str,tutor.tutor_type):
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'You have already booked session at the same time, please try again.'})
 
-	if(str(schedule.available_timeslot)[slot]=='a') & (student.wallet.amount > tutor.getStudentRate()):
+	if(str(schedule.available_timeslot)[slot]=='a') & (student.wallet.amount >= tutor.getStudentRate()):
 		#saving the wallet amount and create session
 		utc=pytz.UTC
 		s_datetime = datetime.strptime(date + " " + time_str, '%Y-%m-%d %H:%M:%S')
