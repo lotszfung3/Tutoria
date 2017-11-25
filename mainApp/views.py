@@ -227,11 +227,11 @@ def bookSession(request):
 def viewUpcomingSessions(request):
 	# Get Student Info
 	this_student = request.user.student
-	# retrieve list of sessions associated with the student
-	# currently only retrieves sessions with (state='normal')
+	this_tutor = request.user.tutor
 	student_sessions = this_student.session_set.filter(state='locked') | this_student.session_set.filter(state='normal')
+	tutor_sessions = this_tutor.session_set.filter(state='locked') | this_tutor.session_set.filter(state='normal')
 	# return list of sessions
-	context = {'student_sessions': student_sessions, 'this_student': this_student,}
+	context = {'student_sessions': student_sessions, 'tutor_sessions': tutor_sessions, 'this_student': this_student,}
 	return render(request,'mainApp/viewUpcomingSessions.html',context)
 
 

@@ -19,6 +19,9 @@
 			Session State
 		</th>
 		<th>
+			Role
+		</th>
+		<th>
 			Tutor
 		</th>
 	</tr>
@@ -38,8 +41,10 @@
 			<p>{{session.state}}</p>
 		</td>
 		<td>
-			<p>{{session.session_tutor}}</p>
+			Student
 		</td>
+		<td>
+			<p>{{session.session_tutor}} {{session_tutor.phoneNumber}}</p>
 		<td>
 			<a href="cancelSession/{{session.id}}">Cancel Session</a>
 		</td>
@@ -47,7 +52,58 @@
 	{% endfor %}
 </table>
 {% else %}
-	<p>No sessions currently booked</p>
+	<p>No sessions as student currently booked</p>
+{% endif %}
+{% if tutor_sessions %}
+<table cellspacing="20" class="ui celled table">
+	<tr>
+		<th>
+			Session Start Time
+		</th>
+		<th>
+			Session Duration
+		</th>
+		<th>
+			Session ID
+		</th>
+		<th>
+			Session State
+		</th>
+		<th>
+			Role
+		</th>
+		<th>
+			Student
+		</th>
+	</tr>
+	{% for session2 in tutor_sessions %}
+	<tr>
+		<td>
+			<p>{{session2.session_datetime}}</p>
+		</td>
+		
+		<td>
+			<p>{% if session2.session_tutor.tutor_type == 'Contract' %}30 minutes {% else %} 1 hour {% endif %}</p>
+		</td>
+		<td>
+			<p>{{session2.id}}</p>
+		</td>
+		<td>
+			<p>{{session2.state}}</p>
+		</td>
+		<td>
+			Tutor
+		</td>
+		<td>
+			<p>{{session2.session_student}}
+		<td>
+			Unavailable
+		</td>
+	</tr>
+	{% endfor %}
+</table>
+{% else %}
+	<p>No sessions as tutor currently booked</p>
 {% endif %}
 {% if messages %}
 <ul class="messages">
