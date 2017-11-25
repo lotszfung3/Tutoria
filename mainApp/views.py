@@ -237,7 +237,7 @@ def bookSession(request):
 	if sameTimeBooked(student,date,time_str,tutor.tutor_type):
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'You have already booked session at the same time, please try again.'})
 
-	if(str(schedule.available_timeslot)[slot]=='a'):
+	if(str(schedule.available_timeslot)[slot]=='a') & (student.wallet.amount > tutor.getStudentRate()):
 		#saving the wallet amount and create session
 		utc=pytz.UTC
 		s_datetime = datetime.strptime(date + " " + time_str, '%Y-%m-%d %H:%M:%S')
@@ -265,6 +265,8 @@ def bookSession(request):
 		new_transaction = Transaction.create(session, transAMT, student, tutor)
 		new_transaction.save()
 
+
+
 		if not couponValid:
 			emailGateway('session_book',[student.user.first_name,tutor.user.first_name],{"datetime":session.session_datetime,"amount":tutor.hourly_rate, "commission": tutor.getStudentRate()})
 		else:
@@ -272,9 +274,8 @@ def bookSession(request):
 
 	else:
 		return render(request,'mainApp/confirmPayment_false.html',{'tutor': tutor, 'message': 'The slot you chose is not available, please choose another slot.'})
-		
 
-	return redirect(viewUpcomingSessions)
+
 
 #routes for cancel payment
 @login_required
@@ -283,10 +284,10 @@ def viewUpcomingSessions(request):
 	this_student = request.user.student
 	# retrieve list of sessions associated with the student
 	student_sessions = this_student.session_set.filter(state__in=['locked','normal']) 
-	# return list of sessions
-	temp_session=request.user.tutor.session_set.filter(state__in=['locked','normal']).order_by('session_datetime') if hasattr(request.user,'tutor') and request.user.tutor.session_set.exists() else None
+	# return list of sessions associated with tutor
+	tutor_sessions=request.user.tutor.session_set.filter(state__in=['locked','normal']).order_by('session_datetime') if hasattr(request.user,'tutor') and request.user.tutor.session_set.exists() else None
 		
-	context = {'student_sessions': student_sessions, 'this_student': this_student,'tutor_session':temp_session}
+	context = {'student_sessions': student_sessions, 'this_student': this_student,'tutor_sessions':tutor_sessions}
 	return render(request,'mainApp/viewUpcomingSessions.html',context)
 
 
@@ -313,7 +314,7 @@ def cancelSession(request, session_ID):
 		return HttpResponseRedirect('/main/upcomingSessions')
 	
 	elif(this_session.state=='cancelled'):#cancelled
-		messages.info(request,'This session have been cancelled')
+		messages.info(request,'This session has been cancelled')
 		return HttpResponseRedirect('/main/upcomingSessions')
 	
 	elif(this_session.state=='locked'):
