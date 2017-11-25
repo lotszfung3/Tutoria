@@ -41,7 +41,7 @@ class End_Session(CronJobBase):
 		for session in all_sessions:
 			time_passed=now-session.session_datetime
 			if (time_passed>timedelta(hours=1) or (time_passed>timedelta(minutes=30) and session.session_tutor.tutor_type=="Contract")):
-				session_transaction = Transaction.objects.get(involved_session=session)
+				session_transaction = session.transaction
 
 				# mark session as ended
 				session.state='ended'

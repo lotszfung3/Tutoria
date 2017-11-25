@@ -17,7 +17,8 @@ message_dict={"l_logout":"You have logged out.","l_fail":"Your username or your 
 			 "l_register":"You have registered your account sucessfully","l_reset":"You have reset your password",
 			 "r_pw":"The passwrod is too weak","l_fp":"Please check your registered email to reset password",
 			 "l_fpfail":"The username or email doesn't belongs to any user","lrp_fail":"The two password doesn't match",
-             "rp_fail":"Your username is not coorrect"}
+             "rp_fail":"Your username is not coorrect",
+			 "r_un":"Please use another username"}
 
 @csrf_exempt
 def test(request):
@@ -62,6 +63,8 @@ def register(request):
 			validate_password(request.POST['password'])
 		except:
 			return HttpResponseRedirect('/main/register?message=r_pw')
+		if(User.objects.filter(username=request.POST['username']).exists()):
+			return HttpResponseRedirect('/main/register?message=r_un')
 		user = User.objects.create_user(request.POST['username'], request.POST['email'], request.POST['password'])
 		user.first_name=request.POST['name']
 		user.save()
